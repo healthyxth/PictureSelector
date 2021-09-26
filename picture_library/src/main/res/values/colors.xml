@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!--Wegene-->
+    <color name="wegene_text_black">#333333</color>
+    <color name="wegene_text_grey">#CCCCCC</color>
+    <color name="wegene_blue">#4FB1F7</color>
+    <color name="wegene_preview_title_bg">#99000000</color>
+    <color name="transparent">#00000000</color>
+
     <!--PictureSelector-->
     <color name="picture_color_grey">#393a3e</color>
     <color name="picture_color_black">#000000</color>

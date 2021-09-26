@@ -351,51 +351,51 @@ public class PictureSelectorUIStyle {
     public static PictureSelectorUIStyle ofDefaultStyle() {
         PictureSelectorUIStyle uiStyle = new PictureSelectorUIStyle();
 
-        uiStyle.picture_statusBarBackgroundColor = Color.parseColor("#393a3e");
-        uiStyle.picture_container_backgroundColor = Color.parseColor("#000000");
+        uiStyle.picture_statusBarBackgroundColor = Color.parseColor("#FFFFFF");
+        uiStyle.picture_container_backgroundColor = Color.parseColor("#FFFFFF");
 
         uiStyle.picture_navBarColor = Color.parseColor("#393a3e");
 
-        uiStyle.picture_check_style = R.drawable.picture_checkbox_selector;
+        uiStyle.picture_check_style = R.drawable.wegene_checkbox_selector;
 
-        uiStyle.picture_top_leftBack = R.drawable.picture_icon_back;
-        uiStyle.picture_top_titleRightTextColor = new int[]{Color.parseColor("#FFFFFF"), Color.parseColor("#FFFFFF")};
-        uiStyle.picture_top_titleRightTextSize = 14;
-        uiStyle.picture_top_titleTextSize = 18;
-        uiStyle.picture_top_titleArrowUpDrawable = R.drawable.picture_icon_arrow_up;
-        uiStyle.picture_top_titleArrowDownDrawable = R.drawable.picture_icon_arrow_down;
-        uiStyle.picture_top_titleTextColor = Color.parseColor("#FFFFFF");
-        uiStyle.picture_top_titleBarBackgroundColor = Color.parseColor("#393a3e");
+        uiStyle.picture_top_leftBack = R.drawable.wegene_back_grey;
+        uiStyle.picture_top_titleRightTextColor = new int[]{Color.parseColor("#333333"), Color.parseColor("#333333")};
+        uiStyle.picture_top_titleRightTextSize = 16;
+        uiStyle.picture_top_titleTextSize = 16;
+        uiStyle.picture_top_titleArrowUpDrawable = R.drawable.wegene_arrow_up_grey;
+        uiStyle.picture_top_titleArrowDownDrawable = R.drawable.wegene_arrow_down_grey;
+        uiStyle.picture_top_titleTextColor = Color.parseColor("#333333");
+        uiStyle.picture_top_titleBarBackgroundColor = Color.parseColor("#FFFFFF");
 
         uiStyle.picture_album_textSize = 16;
-        uiStyle.picture_album_backgroundStyle = R.drawable.picture_item_select_bg;
-        uiStyle.picture_album_textColor = Color.parseColor("#4d4d4d");
-        uiStyle.picture_album_checkDotStyle = R.drawable.picture_orange_oval;
+        uiStyle.picture_album_backgroundStyle = R.color.picture_color_white;
+        uiStyle.picture_album_textColor = Color.parseColor("#333333");
+        uiStyle.picture_album_checkDotStyle = R.color.transparent;
 
-        uiStyle.picture_bottom_previewTextSize = 14;
-        uiStyle.picture_bottom_previewTextColor = new int[]{Color.parseColor("#9b9b9b"), Color.parseColor("#FA632D")};
+        uiStyle.picture_bottom_previewTextSize = 16;
+        uiStyle.picture_bottom_previewTextColor = new int[]{Color.parseColor("#CCCCCC"), Color.parseColor("#333333")};
 
         uiStyle.picture_bottom_completeRedDotTextSize = 12;
-        uiStyle.picture_bottom_completeTextSize = 14;
+        uiStyle.picture_bottom_completeTextSize = 16;
         uiStyle.picture_bottom_completeRedDotTextColor = Color.parseColor("#FFFFFF");
-        uiStyle.picture_bottom_completeRedDotBackground = R.drawable.picture_num_oval;
-        uiStyle.picture_bottom_completeTextColor = new int[]{Color.parseColor("#9b9b9b"), Color.parseColor("#FA632D")};
-        uiStyle.picture_bottom_barBackgroundColor = Color.parseColor("#393a3e");
+        uiStyle.picture_bottom_completeRedDotBackground = R.drawable.wegene_picture_select_shape;
+        uiStyle.picture_bottom_completeTextColor = new int[]{Color.parseColor("#CCCCCC"), Color.parseColor("#4FB1F7")};
+        uiStyle.picture_bottom_barBackgroundColor = Color.parseColor("#FFFFFF");
 
 
-        uiStyle.picture_adapter_item_camera_backgroundColor = Color.parseColor("#999999");
+        uiStyle.picture_adapter_item_camera_backgroundColor = Color.parseColor("#E6E6E6");
         uiStyle.picture_adapter_item_camera_textColor = Color.parseColor("#FFFFFF");
         uiStyle.picture_adapter_item_camera_textSize = 14;
-        uiStyle.picture_adapter_item_camera_textTopDrawable = R.drawable.picture_icon_camera;
+        uiStyle.picture_adapter_item_camera_textTopDrawable = R.drawable.wegene_camera;
 
         uiStyle.picture_adapter_item_textSize = 12;
         uiStyle.picture_adapter_item_textColor = Color.parseColor("#FFFFFF");
         uiStyle.picture_adapter_item_video_textLeftDrawable = R.drawable.picture_icon_video;
         uiStyle.picture_adapter_item_audio_textLeftDrawable = R.drawable.picture_icon_audio;
 
-        uiStyle.picture_bottom_originalPictureTextSize = 14;
-        uiStyle.picture_bottom_originalPictureCheckStyle = R.drawable.picture_original_wechat_checkbox;
-        uiStyle.picture_bottom_originalPictureTextColor = Color.parseColor("#FFFFFF");
+        uiStyle.picture_bottom_originalPictureTextSize = 16;
+        uiStyle.picture_bottom_originalPictureCheckStyle = R.drawable.wegene_original_selector;
+        uiStyle.picture_bottom_originalPictureTextColor = Color.parseColor("#333333");
         uiStyle.picture_bottom_previewNormalText = R.string.picture_preview_num;
         uiStyle.picture_bottom_originalPictureText = R.string.picture_original_image;
         uiStyle.picture_bottom_completeDefaultText = R.string.picture_please_select;
@@ -406,11 +406,14 @@ public class PictureSelectorUIStyle {
         uiStyle.picture_bottom_previewDefaultText = R.string.picture_preview;
         Context appContext = PictureAppMaster.getInstance().getAppContext();
         if (appContext != null) {
-            uiStyle.picture_top_titleBarHeight = ScreenUtils.dip2px(appContext, 48);
-            uiStyle.picture_bottom_barHeight = ScreenUtils.dip2px(appContext, 45);
+            uiStyle.picture_top_titleBarHeight = ScreenUtils.dip2px(appContext, 44);
+            uiStyle.picture_bottom_barHeight = ScreenUtils.dip2px(appContext, 50);
             // 如果文本内容设置(%1$d/%2$d)，请开启true
             uiStyle.isCompleteReplaceNum = true;
         }
+
+        uiStyle.picture_statusBarChangeTextColor = true;
+        uiStyle.picture_switchSelectNumberStyle = true;
         return uiStyle;
     }
 
