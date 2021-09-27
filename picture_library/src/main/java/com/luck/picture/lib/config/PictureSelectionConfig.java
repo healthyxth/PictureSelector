@@ -1,6 +1,7 @@
 package com.luck.picture.lib.config;
 
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -484,7 +485,7 @@ public final class PictureSelectionConfig implements Parcelable {
         returnEmpty = false;
         synOrAsy = true;
         zoomAnim = true;
-        circleDimmedColor = 0;
+        circleDimmedColor = Color.parseColor("#90000000");
         circleDimmedBorderColor = 0;
         circleStrokeWidth = 1;
         isDragFrame = true;
