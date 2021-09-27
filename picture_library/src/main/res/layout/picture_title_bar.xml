@@ -88,5 +88,11 @@
         android:background="@color/picture_color_transparent"
         android:visibility="gone" />
 
+    <View
+        android:id="@+id/title_bottom_line"
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:layout_alignParentBottom="true"
+        android:background="@color/wegene_color_line" />
 </RelativeLayout>
 

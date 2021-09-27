@@ -134,6 +134,7 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
         mPicturePreview.setVisibility(View.GONE);
         mIvArrow.setVisibility(View.GONE);
         mTvPictureRight.setVisibility(View.GONE);
+        findViewById(R.id.title_bottom_line).setVisibility(View.GONE);
 
         check.setVisibility(View.VISIBLE);
         btnCheck.setVisibility(View.VISIBLE);
@@ -361,16 +362,22 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
     @Override
     public void initPictureSelectorStyle() {
         if (PictureSelectionConfig.uiStyle != null) {
-            if (PictureSelectionConfig.uiStyle.picture_top_titleTextColor != 0) {
+            if (PictureSelectionConfig.uiStyle.preview_top_titleTextColor != 0) {
+                tvTitle.setTextColor(PictureSelectionConfig.uiStyle.preview_top_titleTextColor);
+            } else if (PictureSelectionConfig.uiStyle.picture_top_titleTextColor != 0) {
                 tvTitle.setTextColor(PictureSelectionConfig.uiStyle.picture_top_titleTextColor);
             }
             if (PictureSelectionConfig.uiStyle.picture_top_titleTextSize != 0) {
                 tvTitle.setTextSize(PictureSelectionConfig.uiStyle.picture_top_titleTextSize);
             }
-            if (PictureSelectionConfig.uiStyle.picture_top_leftBack != 0) {
+            if (PictureSelectionConfig.uiStyle.preview_top_leftBack != 0) {
+                pictureLeftBack.setImageResource(PictureSelectionConfig.uiStyle.preview_top_leftBack);
+            } else if (PictureSelectionConfig.uiStyle.picture_top_leftBack != 0) {
                 pictureLeftBack.setImageResource(PictureSelectionConfig.uiStyle.picture_top_leftBack);
             }
-            if (PictureSelectionConfig.uiStyle.picture_bottom_barBackgroundColor != 0) {
+            if (PictureSelectionConfig.uiStyle.preview_bottom_barBackgroundColor != 0) {
+                selectBarLayout.setBackgroundColor(PictureSelectionConfig.uiStyle.preview_bottom_barBackgroundColor);
+            } else if (PictureSelectionConfig.uiStyle.picture_bottom_barBackgroundColor != 0) {
                 selectBarLayout.setBackgroundColor(PictureSelectionConfig.uiStyle.picture_bottom_barBackgroundColor);
             }
             if (PictureSelectionConfig.uiStyle.picture_bottom_completeRedDotBackground != 0) {
@@ -398,12 +405,16 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
             }
 
             if (config.isOriginalControl) {
-                if (PictureSelectionConfig.uiStyle.picture_bottom_originalPictureCheckStyle != 0) {
+                if (PictureSelectionConfig.uiStyle.preview_bottom_originalPictureCheckStyle != 0) {
+                    mCbOriginal.setButtonDrawable(PictureSelectionConfig.uiStyle.preview_bottom_originalPictureCheckStyle);
+                } else if (PictureSelectionConfig.uiStyle.picture_bottom_originalPictureCheckStyle != 0) {
                     mCbOriginal.setButtonDrawable(PictureSelectionConfig.uiStyle.picture_bottom_originalPictureCheckStyle);
                 } else {
                     mCbOriginal.setButtonDrawable(ContextCompat.getDrawable(this, R.drawable.picture_original_checkbox));
                 }
-                if (PictureSelectionConfig.uiStyle.picture_bottom_originalPictureTextColor != 0) {
+                if (PictureSelectionConfig.uiStyle.preview_bottom_originalPictureTextColor != 0) {
+                    mCbOriginal.setTextColor(PictureSelectionConfig.uiStyle.preview_bottom_originalPictureTextColor);
+                } else if (PictureSelectionConfig.uiStyle.picture_bottom_originalPictureTextColor != 0) {
                     mCbOriginal.setTextColor(PictureSelectionConfig.uiStyle.picture_bottom_originalPictureTextColor);
                 } else {
                     mCbOriginal.setTextColor(ContextCompat.getColor(this, R.color.picture_color_53575e));

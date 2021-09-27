@@ -236,10 +236,14 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
         }
         if (PictureSelectionConfig.uiStyle != null) {
             openWhiteStatusBar = PictureSelectionConfig.uiStyle.picture_statusBarChangeTextColor;
-            if (PictureSelectionConfig.uiStyle.picture_top_titleBarBackgroundColor != 0) {
+            if (this instanceof PicturePreviewActivity && PictureSelectionConfig.uiStyle.preview_top_titleBarBackgroundColor != 0) {
+                colorPrimary = PictureSelectionConfig.uiStyle.preview_top_titleBarBackgroundColor;
+            } else if (PictureSelectionConfig.uiStyle.picture_top_titleBarBackgroundColor != 0) {
                 colorPrimary = PictureSelectionConfig.uiStyle.picture_top_titleBarBackgroundColor;
             }
-            if (PictureSelectionConfig.uiStyle.picture_statusBarBackgroundColor != 0) {
+            if (this instanceof PicturePreviewActivity && PictureSelectionConfig.uiStyle.preview_statusBarBackgroundColor != 0) {
+                colorPrimaryDark = PictureSelectionConfig.uiStyle.preview_statusBarBackgroundColor;
+            } else if (PictureSelectionConfig.uiStyle.picture_statusBarBackgroundColor != 0) {
                 colorPrimaryDark = PictureSelectionConfig.uiStyle.picture_statusBarBackgroundColor;
             }
             numComplete = PictureSelectionConfig.uiStyle.picture_switchSelectTotalStyle;

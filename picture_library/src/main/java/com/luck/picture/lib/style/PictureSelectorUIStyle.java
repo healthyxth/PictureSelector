@@ -13,6 +13,42 @@ import com.luck.picture.lib.tools.ScreenUtils;
  * @describe：PictureUIStyle
  */
 public class PictureSelectorUIStyle {
+
+    /**
+     * 预览页状态栏背景色
+     */
+    public int preview_statusBarBackgroundColor;
+
+    /**
+     * 预览页标题栏背景色
+     */
+    public int preview_top_titleBarBackgroundColor;
+
+    /**
+     * 预览页底部bar背景色
+     */
+    public int preview_bottom_barBackgroundColor;
+
+    /**
+     * 预览页返回按钮
+     */
+    public int preview_top_leftBack;
+
+    /**
+     * 预览页标题字体颜色
+     */
+    public int preview_top_titleTextColor;
+
+    /**
+     * 预览页原图勾选样式
+     */
+    public int preview_bottom_originalPictureCheckStyle;
+
+    /**
+     * 预览页原图文字颜色
+     */
+    public int preview_bottom_originalPictureTextColor;
+
     /**
      * 状态栏背景色
      */
@@ -354,6 +390,7 @@ public class PictureSelectorUIStyle {
         uiStyle.picture_statusBarChangeTextColor = true;
         uiStyle.picture_switchSelectNumberStyle = true;
         uiStyle.picture_switchSelectTotalStyle = true;
+        setPreviewStyle(uiStyle);
 
         uiStyle.picture_statusBarBackgroundColor = Color.parseColor("#FFFFFF");
         uiStyle.picture_container_backgroundColor = Color.parseColor("#FFFFFF");
@@ -398,7 +435,7 @@ public class PictureSelectorUIStyle {
         uiStyle.picture_adapter_item_audio_textLeftDrawable = R.drawable.picture_icon_audio;
 
         uiStyle.picture_bottom_originalPictureTextSize = 16;
-        uiStyle.picture_bottom_originalPictureCheckStyle = R.drawable.wegene_original_selector;
+        uiStyle.picture_bottom_originalPictureCheckStyle = R.drawable.wegene_original_white_selector;
         uiStyle.picture_bottom_originalPictureTextColor = Color.parseColor("#333333");
         uiStyle.picture_bottom_previewNormalText = R.string.wegene_preview;
         uiStyle.picture_bottom_originalPictureText = R.string.picture_original_image;
@@ -416,6 +453,16 @@ public class PictureSelectorUIStyle {
             uiStyle.isCompleteReplaceNum = true;
         }
         return uiStyle;
+    }
+
+    private static void setPreviewStyle(PictureSelectorUIStyle uiStyle) {
+        uiStyle.preview_statusBarBackgroundColor = Color.parseColor("#000000");
+        uiStyle.preview_top_titleBarBackgroundColor = Color.parseColor("#99000000");
+        uiStyle.preview_bottom_barBackgroundColor = Color.parseColor("#99000000");
+        uiStyle.preview_top_leftBack = R.drawable.wegene_back_white;
+        uiStyle.preview_top_titleTextColor = Color.parseColor("#FFFFFF");
+        uiStyle.preview_bottom_originalPictureCheckStyle = R.drawable.wegene_original_selector;
+        uiStyle.preview_bottom_originalPictureTextColor = Color.parseColor("#FFFFFF");
     }
 
     /**
