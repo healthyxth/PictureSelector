@@ -86,7 +86,8 @@ public class PictureAlbumDirectoryAdapter extends RecyclerView.Adapter<PictureAl
         String firstTitle = folder.getOfAllType() != -1 ? folder.getOfAllType() == PictureMimeType.ofAudio() ?
                 context.getString(R.string.picture_all_audio)
                 : context.getString(R.string.picture_camera_roll) : name;
-        holder.tvFolderName.setText(context.getString(R.string.picture_camera_roll_num, firstTitle, imageNum));
+        holder.tvFolderName.setText(firstTitle);
+        holder.tvImageNum.setText(String.valueOf(imageNum));
         holder.itemView.setOnClickListener(view -> {
             if (onAlbumItemClickListener != null) {
                 int size = folders.size();
@@ -108,12 +109,13 @@ public class PictureAlbumDirectoryAdapter extends RecyclerView.Adapter<PictureAl
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView ivFirstImage;
-        TextView tvFolderName, tvSign;
+        TextView tvFolderName, tvSign, tvImageNum;
 
         public ViewHolder(View itemView) {
             super(itemView);
             ivFirstImage = itemView.findViewById(R.id.first_image);
             tvFolderName = itemView.findViewById(R.id.tv_folder_name);
+            tvImageNum = itemView.findViewById(R.id.tv_image_num);
             tvSign = itemView.findViewById(R.id.tv_sign);
             if (PictureSelectionConfig.uiStyle != null) {
                 if (PictureSelectionConfig.uiStyle.picture_album_checkDotStyle != 0) {

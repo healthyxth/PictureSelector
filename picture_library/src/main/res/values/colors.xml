@@ -2,9 +2,11 @@
 <resources>
     <!--Wegene-->
     <color name="wegene_text_black">#333333</color>
-    <color name="wegene_text_grey">#CCCCCC</color>
+    <color name="wegene_text_grey">#999999</color>
+    <color name="wegene_unselect_text">#CCCCCC</color>
     <color name="wegene_blue">#4FB1F7</color>
     <color name="wegene_preview_title_bg">#99000000</color>
+    <color name="wegene_color_line">#DCDFE0</color>
     <color name="transparent">#00000000</color>
 
     <!--PictureSelector-->

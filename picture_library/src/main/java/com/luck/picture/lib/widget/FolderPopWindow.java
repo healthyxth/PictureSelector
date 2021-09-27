@@ -91,7 +91,7 @@ public class FolderPopWindow extends PopupWindow {
                 }
             }
         }
-        this.maxHeight = (int) (ScreenUtils.getScreenHeight(context) * 0.6);
+        this.maxHeight = (int) (ScreenUtils.getScreenHeight(context));
         initView();
     }
 

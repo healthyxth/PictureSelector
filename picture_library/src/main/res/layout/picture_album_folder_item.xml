@@ -4,19 +4,21 @@
     android:layout_height="wrap_content"
     android:background="@drawable/picture_item_select_bg"
     android:orientation="vertical"
-    android:padding="6dp">
+    android:paddingLeft="15dp">
 
 
     <ImageView
         android:id="@+id/first_image"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_centerVertical="true" />
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_centerVertical="true"
+        android:layout_marginVertical="15dp" />
 
     <TextView
         android:id="@+id/tv_sign"
         android:layout_width="12dp"
         android:layout_height="12dp"
+        android:layout_alignTop="@id/first_image"
         android:layout_alignRight="@id/first_image"
         android:layout_margin="4dp"
         android:background="@drawable/picture_orange_oval"
@@ -26,12 +28,29 @@
         android:id="@+id/tv_folder_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignTop="@id/first_image"
         android:layout_marginLeft="10dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginRight="15dp"
         android:layout_toRightOf="@id/first_image"
         android:text="@string/picture_camera_roll_num"
         android:textColor="@color/picture_color_4d"
         android:textSize="16sp" />
 
+    <TextView
+        android:id="@+id/tv_image_num"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tv_folder_name"
+        android:layout_alignLeft="@id/tv_folder_name"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="12dp"
+        android:text="0"
+        android:textColor="@color/wegene_text_grey"
+        android:textSize="13sp" />
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:layout_alignParentBottom="true"
+        android:background="@color/wegene_color_line" />
 </RelativeLayout>
