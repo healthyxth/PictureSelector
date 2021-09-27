@@ -4,6 +4,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.SeekBar;
@@ -132,7 +133,7 @@ public class PicturePlayAudioActivity extends PictureBaseActivity implements Vie
         }
         if (i == R.id.tv_Quit) {
             handler.removeCallbacks(runnable);
-            new Handler().postDelayed(() -> stop(audio_path), 30);
+            new Handler(Looper.getMainLooper()).postDelayed(() -> stop(audio_path), 30);
             try {
                 exit();
             } catch (Exception e) {

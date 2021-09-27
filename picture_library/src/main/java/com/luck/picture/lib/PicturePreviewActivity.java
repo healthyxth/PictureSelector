@@ -5,6 +5,7 @@ import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.view.View;
@@ -112,7 +113,7 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
     @Override
     protected void initWidgets() {
         super.initWidgets();
-        mHandler = new Handler();
+        mHandler = new Handler(Looper.getMainLooper());
         mTitleBar = findViewById(R.id.titleBar);
         screenWidth = ScreenUtils.getScreenWidth(this);
         animation = AnimationUtils.loadAnimation(this, R.anim.picture_anim_modal_in);
