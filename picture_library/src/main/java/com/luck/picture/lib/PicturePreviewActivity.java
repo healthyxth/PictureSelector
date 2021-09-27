@@ -392,6 +392,9 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
                     mTvPictureOk.setTextColor(colorStateList);
                 }
             }
+            if (PictureSelectionConfig.uiStyle.picture_bottom_completeTextSize != 0) {
+                mTvPictureOk.setTextSize(PictureSelectionConfig.uiStyle.picture_bottom_completeTextSize);
+            }
             if (PictureSelectionConfig.uiStyle.picture_bottom_completeDefaultText != 0) {
                 mTvPictureOk.setText(PictureSelectionConfig.uiStyle.picture_bottom_completeDefaultText);
             }

@@ -426,7 +426,7 @@ public class PictureSelectorUIStyle {
 
         uiStyle.picture_adapter_item_camera_backgroundColor = Color.parseColor("#E6E6E6");
         uiStyle.picture_adapter_item_camera_textColor = Color.parseColor("#FFFFFF");
-        uiStyle.picture_adapter_item_camera_textSize = 14;
+        uiStyle.picture_adapter_item_camera_textSize = 1;
         uiStyle.picture_adapter_item_camera_textTopDrawable = R.drawable.wegene_camera;
 
         uiStyle.picture_adapter_item_textSize = 12;
