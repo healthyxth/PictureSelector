@@ -351,6 +351,10 @@ public class PictureSelectorUIStyle {
     public static PictureSelectorUIStyle ofDefaultStyle() {
         PictureSelectorUIStyle uiStyle = new PictureSelectorUIStyle();
 
+        uiStyle.picture_statusBarChangeTextColor = true;
+        uiStyle.picture_switchSelectNumberStyle = true;
+        uiStyle.picture_switchSelectTotalStyle = true;
+
         uiStyle.picture_statusBarBackgroundColor = Color.parseColor("#FFFFFF");
         uiStyle.picture_container_backgroundColor = Color.parseColor("#FFFFFF");
 
@@ -396,14 +400,14 @@ public class PictureSelectorUIStyle {
         uiStyle.picture_bottom_originalPictureTextSize = 16;
         uiStyle.picture_bottom_originalPictureCheckStyle = R.drawable.wegene_original_selector;
         uiStyle.picture_bottom_originalPictureTextColor = Color.parseColor("#333333");
-        uiStyle.picture_bottom_previewNormalText = R.string.picture_preview_num;
+        uiStyle.picture_bottom_previewNormalText = R.string.wegene_preview;
         uiStyle.picture_bottom_originalPictureText = R.string.picture_original_image;
-        uiStyle.picture_bottom_completeDefaultText = R.string.picture_please_select;
-        uiStyle.picture_bottom_completeNormalText = R.string.picture_completed;
+        uiStyle.picture_bottom_completeDefaultText = R.string.wegene_completed_normal;
+        uiStyle.picture_bottom_completeNormalText = R.string.wegene_completed;
         uiStyle.picture_adapter_item_camera_text = R.string.picture_take_picture;
         uiStyle.picture_top_titleRightDefaultText = R.string.picture_cancel;
         uiStyle.picture_top_titleRightNormalText = R.string.picture_cancel;
-        uiStyle.picture_bottom_previewDefaultText = R.string.picture_preview;
+        uiStyle.picture_bottom_previewDefaultText = R.string.wegene_preview;
         Context appContext = PictureAppMaster.getInstance().getAppContext();
         if (appContext != null) {
             uiStyle.picture_top_titleBarHeight = ScreenUtils.dip2px(appContext, 44);
@@ -411,9 +415,6 @@ public class PictureSelectorUIStyle {
             // 如果文本内容设置(%1$d/%2$d)，请开启true
             uiStyle.isCompleteReplaceNum = true;
         }
-
-        uiStyle.picture_statusBarChangeTextColor = true;
-        uiStyle.picture_switchSelectNumberStyle = true;
         return uiStyle;
     }
 

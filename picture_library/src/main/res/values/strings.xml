@@ -1,4 +1,8 @@
 <resources>
+    <string name="wegene_preview">预览</string>
+    <string name="wegene_completed_normal">确定</string>
+    <string name="wegene_completed">确定(%1$d/%2$d)</string>
+
     <string name="picture_camera_roll">CameraRoll</string>
     <string name="picture_camera_roll_num">%1$s (%2$d)</string>
     <string name="picture_cancel">Cancel</string>
