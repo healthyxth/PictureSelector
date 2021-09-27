@@ -1448,8 +1448,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (grantResult == PackageManager.PERMISSION_GRANTED) {
                     PictureFileUtils.deleteCacheDirFile(getContext(), PictureMimeType.ofImage());
                 } else {
-                    Toast.makeText(MainActivity.this,
-                            getString(R.string.picture_jurisdiction), Toast.LENGTH_SHORT).show();
+                    ToastUtils.s(MainActivity.this,
+                            getString(R.string.picture_jurisdiction));
                 }
             }
         }

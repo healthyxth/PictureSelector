@@ -1227,8 +1227,8 @@ public class PhotoFragment extends Fragment implements View.OnClickListener,
                     if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
                         PictureFileUtils.deleteCacheDirFile(getContext(), PictureMimeType.ofImage());
                     } else {
-                        Toast.makeText(getContext(),
-                                getString(R.string.picture_jurisdiction), Toast.LENGTH_SHORT).show();
+                        ToastUtils.s(getContext(),
+                                getString(R.string.picture_jurisdiction));
                     }
                 }
                 break;

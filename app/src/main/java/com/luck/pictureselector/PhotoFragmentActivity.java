@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.tools.PictureFileUtils;
+import com.luck.picture.lib.tools.ToastUtils;
 
 public class PhotoFragmentActivity extends AppCompatActivity {
     private PhotoFragment fragment;
@@ -41,8 +42,8 @@ public class PhotoFragmentActivity extends AppCompatActivity {
                     if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
                         PictureFileUtils.deleteCacheDirFile(PhotoFragmentActivity.this, PictureMimeType.ofImage());
                     } else {
-                        Toast.makeText(PhotoFragmentActivity.this,
-                                getString(R.string.picture_jurisdiction), Toast.LENGTH_SHORT).show();
+                        ToastUtils.s(PhotoFragmentActivity.this,
+                                getString(R.string.picture_jurisdiction));
                     }
                 }
                 break;
