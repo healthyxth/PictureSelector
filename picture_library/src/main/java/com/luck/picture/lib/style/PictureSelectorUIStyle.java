@@ -445,12 +445,12 @@ public class PictureSelectorUIStyle {
         uiStyle.picture_top_titleRightDefaultText = R.string.picture_cancel;
         uiStyle.picture_top_titleRightNormalText = R.string.picture_cancel;
         uiStyle.picture_bottom_previewDefaultText = R.string.wegene_preview;
+        // 如果文本内容设置(%1$d/%2$d)，请开启true
+        uiStyle.isCompleteReplaceNum = true;
         Context appContext = PictureAppMaster.getInstance().getAppContext();
         if (appContext != null) {
             uiStyle.picture_top_titleBarHeight = ScreenUtils.dip2px(appContext, 44);
             uiStyle.picture_bottom_barHeight = ScreenUtils.dip2px(appContext, 50);
-            // 如果文本内容设置(%1$d/%2$d)，请开启true
-            uiStyle.isCompleteReplaceNum = true;
         }
         return uiStyle;
     }
