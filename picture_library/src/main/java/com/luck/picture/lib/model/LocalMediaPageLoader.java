@@ -182,17 +182,20 @@ public final class LocalMediaPageLoader {
                 Bundle queryArgs = MediaUtils.createQueryArgsBundle(getPageSelection(bucketId), getPageSelectionArgs(bucketId), 1, 0);
                 data = mContext.getContentResolver().query(QUERY_URI, new String[]{
                         MediaStore.Files.FileColumns._ID,
+                        MediaStore.MediaColumns.MIME_TYPE,
                         MediaStore.MediaColumns.DATA}, queryArgs, null);
             } else {
                 String orderBy = MediaStore.Files.FileColumns._ID + " DESC limit 1 offset 0";
                 data = mContext.getContentResolver().query(QUERY_URI, new String[]{
                         MediaStore.Files.FileColumns._ID,
+                        MediaStore.MediaColumns.MIME_TYPE,
                         MediaStore.MediaColumns.DATA}, getPageSelection(bucketId), getPageSelectionArgs(bucketId), orderBy);
             }
             if (data != null && data.getCount() > 0) {
                 if (data.moveToFirst()) {
                     long id = data.getLong(data.getColumnIndexOrThrow(MediaStore.Files.FileColumns._ID));
-                    return SdkVersionUtils.checkedAndroid_Q() ? getRealPathAndroid_Q(id) : data.getString
+                    String mimeType = data.getString(data.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MIME_TYPE));
+                    return SdkVersionUtils.checkedAndroid_Q() ? PictureMimeType.getRealPathUri(id, mimeType) : data.getString
                             (data.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA));
                 }
                 return null;
@@ -242,7 +245,7 @@ public final class LocalMediaPageLoader {
      */
     public void loadPageMediaData(long bucketId, int page, int limit, int pageSize,
                                   OnQueryDataResultListener<LocalMedia> listener) {
-        PictureThreadUtils.executeBySingle(new PictureThreadUtils.SimpleTask<MediaData>() {
+        PictureThreadUtils.executeByIo(new PictureThreadUtils.SimpleTask<MediaData>() {
 
             @Override
             public MediaData doInBackground() {
@@ -272,15 +275,15 @@ public final class LocalMediaPageLoader {
                             data.moveToFirst();
                             do {
                                 long id = data.getLong(idColumn);
+                                String mimeType = data.getString(mimeTypeColumn);
+                                mimeType = TextUtils.isEmpty(mimeType) ? PictureMimeType.ofJPEG() : mimeType;
                                 String absolutePath = data.getString(dataColumn);
-                                String url = SdkVersionUtils.checkedAndroid_Q() ? getRealPathAndroid_Q(id) : absolutePath;
+                                String url = SdkVersionUtils.checkedAndroid_Q() ? PictureMimeType.getRealPathUri(id, mimeType) : absolutePath;
                                 if (config.isFilterInvalidFile) {
                                     if (!PictureFileUtils.isFileExists(absolutePath)) {
                                         continue;
                                     }
                                 }
-                                String mimeType = data.getString(mimeTypeColumn);
-                                mimeType = TextUtils.isEmpty(mimeType) ? PictureMimeType.ofJPEG() : mimeType;
                                 // Here, it is solved that some models obtain mimeType and return the format of image / *,
                                 // which makes it impossible to distinguish the specific type, such as mi 8,9,10 and other models
                                 if (mimeType.endsWith("image/*")) {
@@ -338,9 +341,7 @@ public final class LocalMediaPageLoader {
                                     }
                                 }
 
-                                LocalMedia image = new LocalMedia
-                                        (id, url, absolutePath, fileName, folderName, duration, config.chooseMode, mimeType, width, height, size, bucket_id, data.getLong(dateAddedColumn));
-
+                                LocalMedia image = LocalMedia.parseLocalMedia(id, url, absolutePath, fileName, folderName, duration, config.chooseMode, mimeType, width, height, size, bucket_id, data.getLong(dateAddedColumn));
                                 result.add(image);
 
                             } while (data.moveToNext());
@@ -361,6 +362,7 @@ public final class LocalMediaPageLoader {
 
             @Override
             public void onSuccess(MediaData result) {
+                PictureThreadUtils.cancel(PictureThreadUtils.getIoPool());
                 if (listener != null && result != null) {
                     listener.onComplete(result.data, page, result.isHasNextMore);
                 }
@@ -374,7 +376,7 @@ public final class LocalMediaPageLoader {
      * @param listener
      */
     public void loadAllMedia(OnQueryDataResultListener<LocalMediaFolder> listener) {
-        PictureThreadUtils.executeBySingle(new PictureThreadUtils.SimpleTask<List<LocalMediaFolder>>() {
+        PictureThreadUtils.executeByIo(new PictureThreadUtils.SimpleTask<List<LocalMediaFolder>>() {
             @Override
             public List<LocalMediaFolder> doInBackground() {
                 Cursor data = mContext.getContentResolver().query(QUERY_URI,
@@ -415,7 +417,7 @@ public final class LocalMediaPageLoader {
                                         long id = data.getLong(data.getColumnIndex(MediaStore.Files.FileColumns._ID));
                                         mediaFolder.setName(bucketDisplayName);
                                         mediaFolder.setImageNum(ValueOf.toInt(size));
-                                        mediaFolder.setFirstImagePath(getRealPathAndroid_Q(id));
+                                        mediaFolder.setFirstImagePath(PictureMimeType.getRealPathUri(id, mimeType));
                                         mediaFolder.setFirstMimeType(mimeType);
                                         mediaFolders.add(mediaFolder);
                                         hashSet.add(bucketId);
@@ -467,7 +469,6 @@ public final class LocalMediaPageLoader {
                 } catch (Exception e) {
                     e.printStackTrace();
                     Log.i(TAG, "loadAllMedia Data Error: " + e.getMessage());
-                    return null;
                 } finally {
                     if (data != null && !data.isClosed()) {
                         data.close();
@@ -478,6 +479,7 @@ public final class LocalMediaPageLoader {
 
             @Override
             public void onSuccess(List<LocalMediaFolder> result) {
+                PictureThreadUtils.cancel(PictureThreadUtils.getIoPool());
                 if (listener != null && result != null) {
                     listener.onComplete(result, 1, false);
                 }
@@ -493,7 +495,8 @@ public final class LocalMediaPageLoader {
      */
     private static String getFirstUri(Cursor cursor) {
         long id = cursor.getLong(cursor.getColumnIndex(MediaStore.Files.FileColumns._ID));
-        return getRealPathAndroid_Q(id);
+        String mimeType = cursor.getString(cursor.getColumnIndex(MediaStore.Files.FileColumns.MIME_TYPE));
+        return PictureMimeType.getRealPathUri(id, mimeType);
     }
 
     /**
@@ -646,16 +649,6 @@ public final class LocalMediaPageLoader {
             int rSize = rhs.getImageNum();
             return Integer.compare(rSize, lSize);
         });
-    }
-
-    /**
-     * Android Q
-     *
-     * @param id
-     * @return
-     */
-    private static String getRealPathAndroid_Q(long id) {
-        return QUERY_URI.buildUpon().appendPath(ValueOf.toString(id)).build().toString();
     }
 
     /**

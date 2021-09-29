@@ -2,8 +2,10 @@ package com.luck.picture.lib.config;
 
 
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.net.Uri;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
 
@@ -92,6 +94,26 @@ public final class PictureMimeType {
 
 
     /**
+     * get uri
+     *
+     * @param id
+     * @return
+     */
+    public static String getRealPathUri(long id, String mimeType) {
+        Uri contentUri;
+        if (PictureMimeType.isHasImage(mimeType)) {
+            contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+        } else if (PictureMimeType.isHasVideo(mimeType)) {
+            contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+        } else if (PictureMimeType.isHasAudio(mimeType)) {
+            contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        } else {
+            contentUri = MediaStore.Files.getContentUri("external");
+        }
+        return ContentUris.withAppendedId(contentUri, id).toString();
+    }
+
+    /**
      * isGif
      *
      * @param mimeType
@@ -99,6 +121,16 @@ public final class PictureMimeType {
      */
     public static boolean isGif(String mimeType) {
         return mimeType != null && (mimeType.equals("image/gif") || mimeType.equals("image/GIF"));
+    }
+
+    /**
+     * isWebp
+     *
+     * @param mimeType
+     * @return
+     */
+    public static boolean isWebp(String mimeType) {
+        return mimeType != null && mimeType.equalsIgnoreCase("image/webp");
     }
 
     /**
@@ -111,7 +143,7 @@ public final class PictureMimeType {
         if (TextUtils.isEmpty(suffix)) {
             return false;
         }
-        return suffix.startsWith(".gif") || suffix.startsWith(".GIF");
+        return GIF.equalsIgnoreCase(suffix);
     }
 
     /**
@@ -189,29 +221,9 @@ public final class PictureMimeType {
         if (TextUtils.isEmpty(path)) {
             return false;
         }
-        return path.startsWith("http")
-                || path.startsWith("https")
-                || path.startsWith("/http")
-                || path.startsWith("/https");
+        return path.startsWith("http") || path.startsWith("https")
+                || path.startsWith("/http") || path.startsWith("/https");
     }
-
-    /**
-     * Determine whether the file type is an image or a video
-     *
-     * @param cameraMimeType
-     * @return
-     */
-    public static String getMimeType(int cameraMimeType) {
-        switch (cameraMimeType) {
-            case PictureConfig.TYPE_VIDEO:
-                return MIME_TYPE_VIDEO;
-            case PictureConfig.TYPE_AUDIO:
-                return MIME_TYPE_AUDIO_AMR;
-            default:
-                return MIME_TYPE_IMAGE;
-        }
-    }
-
 
     /**
      * 获取mimeType
@@ -231,20 +243,22 @@ public final class PictureMimeType {
             mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
                     fileExtension.toLowerCase());
         }
-        return TextUtils.isEmpty(mimeType) ? "image/jpeg" : mimeType;
+        return TextUtils.isEmpty(mimeType) ? MIME_TYPE_JPEG : mimeType;
     }
 
     /**
      * Determines if the file name is a picture
      *
-     * @param name
+     * @param fileName
      * @return
      */
-    public static boolean isSuffixOfImage(String name) {
-        return !TextUtils.isEmpty(name) && name.endsWith(".PNG") || name.endsWith(".png") || name.endsWith(".jpeg")
-                || name.endsWith(".gif") || name.endsWith(".GIF") || name.endsWith(".jpg")
-                || name.endsWith(".webp") || name.endsWith(".WEBP") || name.endsWith(".JPEG")
-                || name.endsWith(".bmp");
+    public static boolean isSuffixOfImage(String fileName) {
+        if (TextUtils.isEmpty(fileName)) {
+            return false;
+        }
+        return PNG.equalsIgnoreCase(fileName) || JPEG.equalsIgnoreCase(fileName)
+                || JPG.equalsIgnoreCase(fileName) || WEBP.equalsIgnoreCase(fileName)
+                || GIF.equalsIgnoreCase(fileName) || BMP.equalsIgnoreCase(fileName);
     }
 
     /**
@@ -282,6 +296,32 @@ public final class PictureMimeType {
     }
 
     /**
+     * Get Image mimeType
+     *
+     * @param path
+     * @return
+     */
+    public static String getImageMimeType(String path, int cameraMimeType) {
+        try {
+            File file = new File(path);
+            String fileName = file.getName();
+            int beginIndex = fileName.lastIndexOf(".");
+            boolean isMatchSuccess = beginIndex != -1;
+            switch (cameraMimeType) {
+                case PictureConfig.TYPE_VIDEO:
+                    return isMatchSuccess ? "video/" + fileName.substring(beginIndex + 1) : MP4_Q;
+                case PictureConfig.TYPE_AUDIO:
+                    return isMatchSuccess ? "audio/" + fileName.substring(beginIndex + 1) : AMR_Q;
+                default:
+                    return isMatchSuccess ? "image/" + fileName.substring(beginIndex + 1) : JPEG_Q;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return JPEG_Q;
+    }
+
+    /**
      * 获取图片后缀
      *
      * @param path
@@ -290,30 +330,10 @@ public final class PictureMimeType {
     public static String getLastImgType(String path) {
         try {
             int index = path.lastIndexOf(".");
-            if (index > 0) {
-                String imageType = path.substring(index);
-                switch (imageType) {
-                    case ".png":
-                    case ".PNG":
-                    case ".jpg":
-                    case ".jpeg":
-                    case ".JPEG":
-                    case ".WEBP":
-                    case ".bmp":
-                    case ".BMP":
-                    case ".webp":
-                    case ".gif":
-                    case ".GIF":
-                        return imageType;
-                    default:
-                        return ".png";
-                }
-            } else {
-                return ".png";
-            }
+            return index != -1 ? path.substring(index) : PNG;
         } catch (Exception e) {
             e.printStackTrace();
-            return ".png";
+            return PNG;
         }
     }
 
@@ -389,9 +409,25 @@ public final class PictureMimeType {
 
     public final static String JPEG = ".jpeg";
 
+    public final static String JPG = ".jpg";
+
     public final static String PNG = ".png";
 
+    public final static String WEBP = ".webp";
+
+    public final static String GIF = ".gif";
+
+    public final static String BMP = ".bmp";
+
+    public final static String AMR = ".amr";
+
+    public final static String WAV = ".wav";
+
+    public final static String MP3 = ".mp3";
+
     public final static String MP4 = ".mp4";
+
+    public final static String AVI = ".avi";
 
     public final static String JPEG_Q = "image/jpeg";
 
@@ -400,6 +436,12 @@ public final class PictureMimeType {
     public final static String MP4_Q = "video/mp4";
 
     public final static String AVI_Q = "video/avi";
+
+    public final static String AMR_Q = "audio/amr";
+
+    public final static String WAV_Q = "audio/x-wav";
+
+    public final static String MP3_Q = "audio/mpeg";
 
     public final static String DCIM = "DCIM/Camera";
 

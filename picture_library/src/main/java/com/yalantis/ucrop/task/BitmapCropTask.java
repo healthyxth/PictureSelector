@@ -6,27 +6,27 @@ import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.exifinterface.media.ExifInterface;
 
+import com.luck.picture.lib.PictureContentResolver;
 import com.luck.picture.lib.config.PictureMimeType;
+import com.luck.picture.lib.io.ArrayPoolProvide;
+import com.luck.picture.lib.tools.PictureFileUtils;
 import com.luck.picture.lib.tools.SdkVersionUtils;
 import com.yalantis.ucrop.callback.BitmapCropCallback;
 import com.yalantis.ucrop.model.CropParameters;
 import com.yalantis.ucrop.model.ImageState;
 import com.yalantis.ucrop.util.BitmapLoadUtils;
-import com.yalantis.ucrop.util.FileUtils;
 import com.yalantis.ucrop.util.ImageHeaderParser;
 
 import java.io.File;
-import java.io.FileDescriptor;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.ref.WeakReference;
 
@@ -51,7 +51,7 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
     private float mCurrentScale, mCurrentAngle;
     private final int mMaxResultImageSizeX, mMaxResultImageSizeY;
 
-    private final Bitmap.CompressFormat mCompressFormat;
+    private Bitmap.CompressFormat mCompressFormat;
     private final int mCompressQuality;
     private final String mImageInputPath, mImageOutputPath;
     private final BitmapCropCallback mCropCallback;
@@ -154,11 +154,9 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
 
         if (shouldCrop) {
             ExifInterface originalExif;
-            ParcelFileDescriptor parcelFileDescriptor = null;
             if (SdkVersionUtils.checkedAndroid_Q() && PictureMimeType.isContent(mImageInputPath)) {
-                parcelFileDescriptor =
-                        getContext().getContentResolver().openFileDescriptor(Uri.parse(mImageInputPath), "r");
-                originalExif = new ExifInterface(new FileInputStream(parcelFileDescriptor.getFileDescriptor()));
+                InputStream inputStream = ArrayPoolProvide.getInstance().openInputStream(getContext().getContentResolver(), Uri.parse(mImageInputPath));
+                originalExif = new ExifInterface(inputStream);
             } else {
                 originalExif = new ExifInterface(mImageInputPath);
             }
@@ -166,25 +164,19 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
             if (mCompressFormat.equals(Bitmap.CompressFormat.JPEG)) {
                 ImageHeaderParser.copyExif(originalExif, mCroppedImageWidth, mCroppedImageHeight, mImageOutputPath);
             }
-            if (parcelFileDescriptor != null) {
-                BitmapLoadUtils.close(parcelFileDescriptor);
-            }
             return true;
         } else {
             if (SdkVersionUtils.checkedAndroid_Q() && PictureMimeType.isContent(mImageInputPath)) {
-                ParcelFileDescriptor parcelFileDescriptor =
-                        getContext().getContentResolver().openFileDescriptor(Uri.parse(mImageInputPath), "r");
-                FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
-                FileUtils.copyFile(new FileInputStream(fileDescriptor), mImageOutputPath);
-                BitmapLoadUtils.close(parcelFileDescriptor);
+                InputStream inputStream = ArrayPoolProvide.getInstance().openInputStream(getContext().getContentResolver(), Uri.parse(mImageInputPath));
+                PictureFileUtils.writeFileFromIS(inputStream, new FileOutputStream(mImageOutputPath));
             } else {
-                FileUtils.copyFile(mImageInputPath, mImageOutputPath);
+                PictureFileUtils.copyFile(mImageInputPath, mImageOutputPath);
             }
             return false;
         }
     }
 
-    private void saveImage(@NonNull Bitmap croppedBitmap) throws FileNotFoundException {
+    private void saveImage(@NonNull Bitmap croppedBitmap) {
         Context context = getContext();
         if (context == null) {
             return;
@@ -192,7 +184,12 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
 
         OutputStream outputStream = null;
         try {
-            outputStream = context.getContentResolver().openOutputStream(Uri.fromFile(new File(mImageOutputPath)));
+            outputStream = PictureContentResolver.getContentResolverOpenOutputStream(context, Uri.fromFile(new File(mImageOutputPath)));
+            if (croppedBitmap.hasAlpha()) {
+                if (!mCompressFormat.equals(Bitmap.CompressFormat.PNG)) {
+                    mCompressFormat = Bitmap.CompressFormat.PNG;
+                }
+            }
             croppedBitmap.compress(mCompressFormat, mCompressQuality, outputStream);
             croppedBitmap.recycle();
         } finally {

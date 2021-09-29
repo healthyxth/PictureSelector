@@ -15,12 +15,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
+import com.luck.picture.lib.PictureContentResolver;
 import com.luck.picture.lib.config.PictureMimeType;
+import com.luck.picture.lib.tools.PictureFileUtils;
 import com.luck.picture.lib.tools.SdkVersionUtils;
 import com.yalantis.ucrop.callback.BitmapLoadCallback;
 import com.yalantis.ucrop.model.ExifInfo;
 import com.yalantis.ucrop.util.BitmapLoadUtils;
-import com.yalantis.ucrop.util.FileUtils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -102,21 +103,17 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
         boolean decodeAttemptSuccess = false;
         while (!decodeAttemptSuccess) {
             try {
-                InputStream stream = mContext.getContentResolver().openInputStream(mInputUri);
-                try {
-                    decodeSampledBitmap = BitmapFactory.decodeStream(stream, null, options);
-                    if (options.outWidth == -1 || options.outHeight == -1) {
-                        return new BitmapWorkerResult(new IllegalArgumentException("Bounds for bitmap could not be retrieved from the Uri: [" + mInputUri + "]"));
-                    }
-                } finally {
-                    BitmapLoadUtils.close(stream);
+                InputStream stream = PictureContentResolver.getContentResolverOpenInputStream(mContext, mInputUri);
+                decodeSampledBitmap = BitmapFactory.decodeStream(stream, null, options);
+                if (options.outWidth == -1 || options.outHeight == -1) {
+                    return new BitmapWorkerResult(new IllegalArgumentException("Bounds for bitmap could not be retrieved from the Uri: [" + mInputUri + "]"));
                 }
                 if (checkSize(decodeSampledBitmap, options)) continue;
                 decodeAttemptSuccess = true;
             } catch (OutOfMemoryError error) {
                 Log.e(TAG, "doInBackground: BitmapFactory.decodeFileDescriptor: ", error);
                 options.inSampleSize *= 2;
-            } catch (IOException e) {
+            } catch (Exception e) {
                 Log.e(TAG, "doInBackground: ImageDecoder.createSource: ", e);
                 return new BitmapWorkerResult(new IllegalArgumentException("Bitmap could not be decoded from the Uri: [" + mInputUri + "]", e));
             }
@@ -177,7 +174,7 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
     private String getFilePath() {
         if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.READ_EXTERNAL_STORAGE)
                 == PackageManager.PERMISSION_GRANTED) {
-            return FileUtils.getPath(mContext, mInputUri);
+            return PictureFileUtils.getPath(mContext, mInputUri);
         } else {
             return "";
         }
@@ -193,8 +190,8 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
         InputStream inputStream = null;
         OutputStream outputStream = null;
         try {
-            inputStream = mContext.getContentResolver().openInputStream(inputUri);
-            outputStream = new FileOutputStream(new File(outputUri.getPath()));
+            inputStream = PictureContentResolver.getContentResolverOpenInputStream(mContext, inputUri);
+            outputStream = new FileOutputStream(outputUri.getPath());
             if (inputStream == null) {
                 throw new NullPointerException("InputStream for given input Uri is null");
             }
@@ -227,7 +224,7 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
             byte[] buffer = new byte[1024];
             int read;
             bin = new BufferedInputStream(u.openStream());
-            outputStream = mContext.getContentResolver().openOutputStream(outputUri);
+            outputStream = PictureContentResolver.getContentResolverOpenOutputStream(mContext, outputUri);
             if (outputStream != null) {
                 bout = new BufferedOutputStream(outputStream);
                 while ((read = bin.read(buffer)) > -1) {

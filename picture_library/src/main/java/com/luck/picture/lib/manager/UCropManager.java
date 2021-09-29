@@ -2,6 +2,7 @@ package com.luck.picture.lib.manager;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.text.TextUtils;
 
@@ -30,6 +31,36 @@ import java.util.List;
 public class UCropManager {
 
     /**
+     * 编辑图片
+     *
+     * @param activity     上下文
+     * @param originalPath 文件源路径
+     * @param mimeType     文件类型
+     */
+    public static void ofEditorImage(Activity activity, String originalPath, String mimeType) {
+        if (DoubleUtils.isFastDoubleClick()) {
+            return;
+        }
+        if (TextUtils.isEmpty(originalPath)) {
+            ToastUtils.s(activity.getApplicationContext(), activity.getString(R.string.picture_not_crop_data));
+            return;
+        }
+        PictureSelectionConfig config = PictureSelectionConfig.getInstance();
+        boolean isHttp = PictureMimeType.isHasHttp(originalPath);
+        String suffix = mimeType.replace("image/", ".");
+        File file = new File(PictureFileUtils.getDiskCacheDir(activity.getApplicationContext()),
+                TextUtils.isEmpty(config.renameCropFileName) ? DateUtils.getCreateFileName("IMG_CROP_") + suffix : config.renameCropFileName);
+        Uri uri = isHttp || PictureMimeType.isContent(originalPath) ? Uri.parse(originalPath) : Uri.fromFile(new File(originalPath));
+        UCrop.Options options = UCropManager.basicOptions(activity);
+        options.setHideBottomControls(false);
+        options.setEditorImage(true);
+        options.setToolbarTitle(activity.getString(R.string.picture_editor));
+        UCrop.of(uri, Uri.fromFile(file))
+                .withOptions(options)
+                .startAnimationActivity(activity, PictureSelectionConfig.windowAnimationStyle.activityCropEnterAnimation);
+    }
+
+    /**
      * 裁剪
      *
      * @param activity     上下文
@@ -49,7 +80,7 @@ public class UCropManager {
         String suffix = mimeType.replace("image/", ".");
         File file = new File(PictureFileUtils.getDiskCacheDir(activity.getApplicationContext()),
                 TextUtils.isEmpty(config.renameCropFileName) ? DateUtils.getCreateFileName("IMG_CROP_") + suffix : config.renameCropFileName);
-        Uri uri = isHttp || SdkVersionUtils.checkedAndroid_Q() ? Uri.parse(originalPath) : Uri.fromFile(new File(originalPath));
+        Uri uri = isHttp || PictureMimeType.isContent(originalPath) ? Uri.parse(originalPath) : Uri.fromFile(new File(originalPath));
         UCrop.Options options = UCropManager.basicOptions(activity);
         UCrop.of(uri, Uri.fromFile(file))
                 .withOptions(options)
@@ -91,12 +122,7 @@ public class UCropManager {
         if (index < size) {
             LocalMedia info = list.get(index);
             boolean isHttp = PictureMimeType.isHasHttp(info.getPath());
-            Uri uri;
-            if (TextUtils.isEmpty(info.getAndroidQToPath())) {
-                uri = isHttp || SdkVersionUtils.checkedAndroid_Q() ? Uri.parse(info.getPath()) : Uri.fromFile(new File(info.getPath()));
-            } else {
-                uri = Uri.fromFile(new File(info.getAndroidQToPath()));
-            }
+            Uri uri = isHttp || PictureMimeType.isContent(info.getPath()) ? Uri.parse(info.getPath()) : Uri.fromFile(new File(info.getPath()));
             String suffix = info.getMimeType().replace("image/", ".");
             File file = new File(PictureFileUtils.getDiskCacheDir(activity),
                     TextUtils.isEmpty(config.renameCropFileName) ? DateUtils.getCreateFileName("IMG_CROP_")
@@ -162,34 +188,44 @@ public class UCropManager {
                 titleColor = AttrsUtils.getTypeValueColor(context, R.attr.picture_crop_title_color);
             }
         }
-        UCrop.Options options = config.uCropOptions == null ? new UCrop.Options() : config.uCropOptions;
+        UCrop.Options options;
+        if (config.uCropOptions != null) {
+            options = config.uCropOptions;
+        } else {
+            options = new UCrop.Options();
+            options.setCircleDimmedLayer(config.circleDimmedLayer);
+            options.setDimmedLayerColor(config.circleDimmedColor);
+            options.setShowCropFrame(config.showCropFrame);
+            options.setShowCropGrid(config.showCropGrid);
+            options.setHideBottomControls(config.hideBottomControls);
+            options.setCompressionQuality(config.cropCompressQuality);
+            options.setFreeStyleCropEnabled(config.freeStyleCropEnabled);
+            options.withAspectRatio(config.aspect_ratio_x, config.aspect_ratio_y);
+            if (config.cropWidth > 0 && config.cropHeight > 0) {
+                options.withMaxResultSize(config.cropWidth, config.cropHeight);
+            }
+        }
         options.isOpenWhiteStatusBar(isChangeStatusBarFontColor);
         options.setToolbarColor(toolbarColor);
         options.setStatusBarColor(statusColor);
         options.setToolbarWidgetColor(titleColor);
-        options.setCircleDimmedLayer(config.circleDimmedLayer);
-        options.setDimmedLayerColor(config.circleDimmedColor);
-        options.setDimmedLayerBorderColor(config.circleDimmedBorderColor);
-        options.setCircleStrokeWidth(config.circleStrokeWidth);
-        options.setShowCropFrame(config.showCropFrame);
-        options.setDragFrameEnabled(config.isDragFrame);
-        options.setShowCropGrid(config.showCropGrid);
-        options.setScaleEnabled(config.scaleEnabled);
-        options.setRotateEnabled(config.rotateEnabled);
-        options.isMultipleSkipCrop(config.isMultipleSkipCrop);
-        options.setHideBottomControls(config.hideBottomControls);
-        options.setCompressionQuality(config.cropCompressQuality);
         options.setRenameCropFileName(config.renameCropFileName);
         options.setRequestedOrientation(config.requestedOrientation);
         options.isCamera(config.camera);
-        options.setNavBarColor(cropNavBarColor);
         options.isWithVideoImage(config.isWithVideoImage);
-        options.setFreeStyleCropEnabled(config.freeStyleCropEnabled);
-        options.setCropExitAnimation(PictureSelectionConfig.windowAnimationStyle.activityCropExitAnimation);
-        options.withAspectRatio(config.aspect_ratio_x, config.aspect_ratio_y);
         options.isMultipleRecyclerAnimation(config.isMultipleRecyclerAnimation);
-        if (config.cropWidth > 0 && config.cropHeight > 0) {
-            options.withMaxResultSize(config.cropWidth, config.cropHeight);
+        options.setNavBarColor(cropNavBarColor);
+        options.setDimmedLayerBorderColor(config.circleDimmedBorderColor);
+        options.setCircleStrokeWidth(config.circleStrokeWidth);
+        options.setDragFrameEnabled(config.isDragFrame);
+        options.setScaleEnabled(config.scaleEnabled);
+        options.setRotateEnabled(config.rotateEnabled);
+        options.setFreestyleCropMode(config.freeStyleCropMode);
+        options.setCropDragSmoothToCenter(config.isDragCenter);
+        options.isMultipleSkipCrop(config.isMultipleSkipCrop);
+        options.setCropExitAnimation(PictureSelectionConfig.windowAnimationStyle.activityCropExitAnimation);
+        if (!TextUtils.isEmpty(config.cropCompressFormat)) {
+            options.setCompressionFormat(Bitmap.CompressFormat.valueOf(config.cropCompressFormat));
         }
         return options;
     }

@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
-import com.luck.picture.lib.tools.PictureFileUtils;
+import com.luck.picture.lib.manager.PictureCacheManager;
 import com.luck.picture.lib.tools.ToastUtils;
 
 public class PhotoFragmentActivity extends AppCompatActivity {
@@ -35,18 +35,15 @@ public class PhotoFragmentActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case PictureConfig.APPLY_STORAGE_PERMISSIONS_CODE:
-                // 存储权限
-                for (int i = 0; i < grantResults.length; i++) {
-                    if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                        PictureFileUtils.deleteCacheDirFile(PhotoFragmentActivity.this, PictureMimeType.ofImage());
-                    } else {
-                        ToastUtils.s(PhotoFragmentActivity.this,
-                                getString(R.string.picture_jurisdiction));
-                    }
+        if (requestCode == PictureConfig.APPLY_STORAGE_PERMISSIONS_CODE) {// 存储权限
+            for (int grantResult : grantResults) {
+                if (grantResult == PackageManager.PERMISSION_GRANTED) {
+                    PictureCacheManager.deleteCacheDirFile(PhotoFragmentActivity.this, PictureMimeType.ofImage());
+                } else {
+                    ToastUtils.s(PhotoFragmentActivity.this,
+                            getString(R.string.picture_jurisdiction));
                 }
-                break;
+            }
         }
     }
 }

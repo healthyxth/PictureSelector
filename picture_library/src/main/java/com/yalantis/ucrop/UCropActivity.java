@@ -48,10 +48,10 @@ import androidx.transition.TransitionManager;
 import com.luck.picture.lib.R;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.immersive.ImmersiveManage;
+import com.luck.picture.lib.tools.PictureFileUtils;
 import com.luck.picture.lib.tools.ScreenUtils;
 import com.yalantis.ucrop.callback.BitmapCropCallback;
 import com.yalantis.ucrop.model.AspectRatio;
-import com.yalantis.ucrop.util.FileUtils;
 import com.yalantis.ucrop.util.SelectedStateListDrawable;
 import com.yalantis.ucrop.view.CropImageView;
 import com.yalantis.ucrop.view.GestureCropImageView;
@@ -322,7 +322,7 @@ public class UCropActivity extends AppCompatActivity {
         } else {
             String mimeType = PictureMimeType.getMimeTypeFromMediaContentUri(this, inputUri);
             if (mimeType.endsWith("image/*")) {
-                String path = FileUtils.getPath(this, inputUri);
+                String path = PictureFileUtils.getPath(this, inputUri);
                 mimeType = PictureMimeType.getImageMimeType(path);
             }
             return !PictureMimeType.isGif(mimeType);
@@ -366,7 +366,13 @@ public class UCropActivity extends AppCompatActivity {
         mGestureCropImageView.setImageToWrapCropBoundsAnimDuration(intent.getIntExtra(UCrop.Options.EXTRA_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION, CropImageView.DEFAULT_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION));
 
         // Overlay view options
-        mOverlayView.setFreestyleCropEnabled(intent.getBooleanExtra(UCrop.Options.EXTRA_FREE_STYLE_CROP, OverlayView.DEFAULT_FREESTYLE_CROP_MODE != OverlayView.FREESTYLE_CROP_MODE_DISABLE));
+        int freeStyleCropMode = intent.getIntExtra(UCrop.Options.EXTRA_FREE_STYLE_CROP_MODE, -1);
+        if (freeStyleCropMode == -1 || freeStyleCropMode > OverlayView.FREESTYLE_CROP_MODE_ENABLE_WITH_PASS_THROUGH) {
+            mOverlayView.setFreestyleCropEnabled(intent.getBooleanExtra(UCrop.Options.EXTRA_FREE_STYLE_CROP, OverlayView.DEFAULT_FREESTYLE_CROP_MODE != OverlayView.FREESTYLE_CROP_MODE_DISABLE));
+        } else {
+            mOverlayView.setFreestyleCropMode(freeStyleCropMode);
+        }
+        mOverlayView.setDragSmoothToCenter(intent.getBooleanExtra(UCrop.Options.EXTRA_DRAG_SMOOTH_CENTER, false));
         mOverlayView.setDragFrame(isDragFrame);
         mOverlayView.setDimmedColor(intent.getIntExtra(UCrop.Options.EXTRA_DIMMED_LAYER_COLOR, getResources().getColor(R.color.ucrop_color_default_dimmed)));
         mOverlayView.setCircleDimmedLayer(intent.getBooleanExtra(UCrop.Options.EXTRA_CIRCLE_DIMMED_LAYER, OverlayView.DEFAULT_CIRCLE_DIMMED_LAYER));
@@ -825,6 +831,7 @@ public class UCropActivity extends AppCompatActivity {
                 .putExtra(UCrop.EXTRA_OUTPUT_IMAGE_HEIGHT, imageHeight)
                 .putExtra(UCrop.EXTRA_OUTPUT_OFFSET_X, offsetX)
                 .putExtra(UCrop.EXTRA_OUTPUT_OFFSET_Y, offsetY)
+                .putExtra(UCrop.EXTRA_EDITOR_IMAGE, getIntent().getBooleanExtra(UCrop.Options.EXTRA_EDITOR_IMAGE, false))
         );
     }
 

@@ -204,10 +204,22 @@ public class PictureSelectorUIStyle {
      * 底部预览文字大小
      */
     public int picture_bottom_previewTextSize;
+
     /**
      * 底部预览文字颜色
      */
     public int[] picture_bottom_previewTextColor;
+
+    /**
+     * 底部预览页面编辑文字大小
+     */
+    public int picture_bottom_preview_editorTextSize;
+
+    /**
+     * 底部预览页面编辑文字大小
+     */
+    public int picture_bottom_preview_editorTextColor;
+
 
     /**
      * 原图勾选样式
@@ -217,6 +229,7 @@ public class PictureSelectorUIStyle {
     /**
      * 原图文案
      */
+    @Deprecated
     public int picture_bottom_originalPictureText;
 
     /**
@@ -286,6 +299,11 @@ public class PictureSelectorUIStyle {
     public int picture_bottom_gallery_frameBackground;
 
     /**
+     * 底部gallery分割线(新样式支持)
+     */
+    public int picture_bottom_gallery_dividerColor;
+
+    /**
      * 底部gallery背景色(新样式支持)
      */
     public int picture_bottom_gallery_backgroundColor;
@@ -299,6 +317,11 @@ public class PictureSelectorUIStyle {
      * NavBarColor
      */
     public int picture_navBarColor;
+
+    /**
+     * 专辑栏标题位置居中
+     */
+    public boolean picture_album_horizontal = false;
 
     /**
      * 专辑字体大小
@@ -380,6 +403,11 @@ public class PictureSelectorUIStyle {
     public int picture_adapter_item_gif_tag_background;
 
     /**
+     * adapter item 已编辑图标
+     */
+    public int picture_adapter_item_editor_tag_icon;
+
+    /**
      * 默认样式
      *
      * @return
@@ -416,6 +444,9 @@ public class PictureSelectorUIStyle {
         uiStyle.picture_bottom_previewTextSize = 16;
         uiStyle.picture_bottom_previewTextColor = new int[]{Color.parseColor("#CCCCCC"), Color.parseColor("#333333")};
 
+        uiStyle.picture_bottom_preview_editorTextSize = 14;
+        uiStyle.picture_bottom_preview_editorTextColor = Color.parseColor("#FFFFFF");
+
         uiStyle.picture_bottom_completeRedDotTextSize = 12;
         uiStyle.picture_bottom_completeTextSize = 16;
         uiStyle.picture_bottom_completeRedDotTextColor = Color.parseColor("#FFFFFF");
@@ -438,7 +469,6 @@ public class PictureSelectorUIStyle {
         uiStyle.picture_bottom_originalPictureCheckStyle = R.drawable.wegene_original_white_selector;
         uiStyle.picture_bottom_originalPictureTextColor = Color.parseColor("#333333");
         uiStyle.picture_bottom_previewNormalText = R.string.wegene_preview;
-        uiStyle.picture_bottom_originalPictureText = R.string.picture_original_image;
         uiStyle.picture_bottom_completeDefaultText = R.string.wegene_completed_normal;
         uiStyle.picture_bottom_completeNormalText = R.string.wegene_completed;
         uiStyle.picture_adapter_item_camera_text = R.string.picture_take_picture;
@@ -502,6 +532,9 @@ public class PictureSelectorUIStyle {
         uiStyle.picture_bottom_previewTextSize = 14;
         uiStyle.picture_bottom_previewTextColor = new int[]{Color.parseColor("#9b9b9b"), Color.parseColor("#FA632D")};
 
+        uiStyle.picture_bottom_preview_editorTextSize = 14;
+        uiStyle.picture_bottom_preview_editorTextColor = Color.parseColor("#4d4d4d");
+
         uiStyle.picture_bottom_completeTextColor = new int[]{Color.parseColor("#9b9b9b"), Color.parseColor("#FA632D")};
         uiStyle.picture_bottom_barBackgroundColor = Color.parseColor("#FAFAFA");
 
@@ -520,20 +553,18 @@ public class PictureSelectorUIStyle {
         uiStyle.picture_bottom_originalPictureCheckStyle = R.drawable.picture_original_checkbox;
         uiStyle.picture_bottom_originalPictureTextColor = Color.parseColor("#53575e");
         uiStyle.picture_bottom_previewNormalText = R.string.picture_preview_num;
-        uiStyle.picture_bottom_originalPictureText = R.string.picture_original_image;
         uiStyle.picture_bottom_completeDefaultText = R.string.picture_done;
         uiStyle.picture_bottom_completeNormalText = R.string.picture_done_front_num;
         uiStyle.picture_adapter_item_camera_text = R.string.picture_take_picture;
         uiStyle.picture_top_titleRightDefaultText = R.string.picture_cancel;
         uiStyle.picture_top_titleRightNormalText = R.string.picture_cancel;
         uiStyle.picture_bottom_previewDefaultText = R.string.picture_preview;
+        // 如果文本内容设置(%1$d/%2$d)，请开启true
+        uiStyle.isCompleteReplaceNum = true;
         Context appContext = PictureAppMaster.getInstance().getAppContext();
         if (appContext != null) {
             uiStyle.picture_top_titleBarHeight = ScreenUtils.dip2px(appContext, 48);
             uiStyle.picture_bottom_barHeight = ScreenUtils.dip2px(appContext, 45);
-            // 如果文本内容设置(%1$d/%2$d)，请开启true
-            uiStyle.isCompleteReplaceNum = true;
-
         }
 
         return uiStyle;
@@ -575,6 +606,9 @@ public class PictureSelectorUIStyle {
         uiStyle.picture_bottom_previewTextSize = 14;
         uiStyle.picture_bottom_previewTextColor = new int[]{Color.parseColor("#9b9b9b"), Color.parseColor("#7D7DFF")};
 
+        uiStyle.picture_bottom_preview_editorTextSize = 14;
+        uiStyle.picture_bottom_preview_editorTextColor = Color.parseColor("#4d4d4d");
+
         uiStyle.picture_bottom_completeRedDotTextSize = 12;
         uiStyle.picture_bottom_completeTextSize = 14;
         uiStyle.picture_bottom_completeRedDotTextColor = Color.parseColor("#FFFFFF");
@@ -597,19 +631,18 @@ public class PictureSelectorUIStyle {
         uiStyle.picture_bottom_originalPictureCheckStyle = R.drawable.picture_original_blue_checkbox;
         uiStyle.picture_bottom_originalPictureTextColor = Color.parseColor("#7D7DFF");
         uiStyle.picture_bottom_previewNormalText = R.string.picture_preview_num;
-        uiStyle.picture_bottom_originalPictureText = R.string.picture_original_image;
         uiStyle.picture_bottom_completeDefaultText = R.string.picture_please_select;
         uiStyle.picture_bottom_completeNormalText = R.string.picture_completed;
         uiStyle.picture_adapter_item_camera_text = R.string.picture_take_picture;
         uiStyle.picture_top_titleRightDefaultText = R.string.picture_cancel;
         uiStyle.picture_top_titleRightNormalText = R.string.picture_cancel;
         uiStyle.picture_bottom_previewDefaultText = R.string.picture_preview;
+        // 如果文本内容设置(%1$d/%2$d)，请开启true
+        uiStyle.isCompleteReplaceNum = true;
         Context appContext = PictureAppMaster.getInstance().getAppContext();
         if (appContext != null) {
             uiStyle.picture_top_titleBarHeight = ScreenUtils.dip2px(appContext, 48);
             uiStyle.picture_bottom_barHeight = ScreenUtils.dip2px(appContext, 45);
-            // 如果文本内容设置(%1$d/%2$d)，请开启true
-            uiStyle.isCompleteReplaceNum = true;
         }
         return uiStyle;
     }
@@ -655,8 +688,11 @@ public class PictureSelectorUIStyle {
         uiStyle.picture_bottom_previewTextSize = 16;
         uiStyle.picture_bottom_previewTextColor = new int[]{Color.parseColor("#9b9b9b"), Color.parseColor("#FFFFFF")};
 
+        uiStyle.picture_bottom_preview_editorTextSize = 16;
+        uiStyle.picture_bottom_preview_editorTextColor = Color.parseColor("#FFFFFF");
+
         uiStyle.picture_bottom_completeTextColor = new int[]{Color.parseColor("#9b9b9b"), Color.parseColor("#FA632D")};
-        uiStyle.picture_bottom_barBackgroundColor = Color.parseColor("#393a3e");
+        uiStyle.picture_bottom_barBackgroundColor = Color.parseColor("#F2393a3e");
 
         uiStyle.picture_adapter_item_camera_backgroundColor = Color.parseColor("#999999");
         uiStyle.picture_adapter_item_camera_textColor = Color.parseColor("#FFFFFF");
@@ -673,28 +709,30 @@ public class PictureSelectorUIStyle {
         uiStyle.picture_bottom_originalPictureTextColor = Color.parseColor("#FFFFFF");
         uiStyle.picture_top_titleRightTextDefaultBackground = R.drawable.picture_send_button_default_bg;
         uiStyle.picture_top_titleRightTextNormalBackground = R.drawable.picture_send_button_bg;
+        // 如果文本内容设置(%1$d/%2$d)，请开启true
+        uiStyle.isCompleteReplaceNum = true;
+        uiStyle.picture_top_titleRightDefaultText = R.string.picture_send;
+        uiStyle.picture_top_titleRightNormalText = R.string.picture_cancel;
+        uiStyle.picture_bottom_previewDefaultText = R.string.picture_preview;
+        uiStyle.picture_bottom_previewNormalText = R.string.picture_preview_num;
+        uiStyle.picture_bottom_completeDefaultText = R.string.picture_please_select;
+        uiStyle.picture_bottom_completeNormalText = R.string.picture_completed;
+        uiStyle.picture_adapter_item_camera_text = R.string.picture_take_picture;
+        uiStyle.picture_bottom_selectedText = R.string.picture_select;
+        uiStyle.picture_bottom_selectedCheckStyle = R.drawable.picture_wechat_select_cb;
+
+        uiStyle.picture_bottom_selectedTextColor = Color.parseColor("#FFFFFF");
+        uiStyle.picture_bottom_selectedTextSize = 16;
+        uiStyle.picture_bottom_gallery_backgroundColor = Color.parseColor("#F2393a3e");
+        uiStyle.picture_bottom_gallery_dividerColor = Color.parseColor("#666666");
+        uiStyle.picture_bottom_gallery_frameBackground = R.drawable.picture_preview_gallery_border_bg;
+
         Context appContext = PictureAppMaster.getInstance().getAppContext();
         if (appContext != null) {
             uiStyle.picture_top_titleBarHeight = ScreenUtils.dip2px(appContext, 48);
-            uiStyle.picture_top_titleRightDefaultText = R.string.picture_send;
-            uiStyle.picture_top_titleRightNormalText = R.string.picture_cancel;
             uiStyle.picture_bottom_barHeight = ScreenUtils.dip2px(appContext, 45);
-            uiStyle.picture_bottom_previewDefaultText = R.string.picture_preview;
-            uiStyle.picture_bottom_previewNormalText = R.string.picture_preview_num;
-            uiStyle.picture_bottom_originalPictureText = R.string.picture_original_image;
-            uiStyle.picture_bottom_completeDefaultText = R.string.picture_please_select;
-            uiStyle.picture_bottom_completeNormalText = R.string.picture_completed;
-            uiStyle.picture_adapter_item_camera_text = R.string.picture_take_picture;
-            uiStyle.picture_bottom_selectedText = R.string.picture_select;
-            uiStyle.picture_bottom_selectedCheckStyle = R.drawable.picture_wechat_select_cb;
-            // 如果文本内容设置(%1$d/%2$d)，请开启true
-            uiStyle.isCompleteReplaceNum = true;
             uiStyle.picture_top_titleArrowLeftPadding = ScreenUtils.dip2px(appContext, 3);
-            uiStyle.picture_bottom_selectedTextColor = Color.parseColor("#FFFFFF");
-            uiStyle.picture_bottom_selectedTextSize = 16;
             uiStyle.picture_bottom_gallery_height = ScreenUtils.dip2px(appContext, 80);
-            uiStyle.picture_bottom_gallery_backgroundColor = Color.parseColor("#a0393a3e");
-            uiStyle.picture_bottom_gallery_frameBackground = R.drawable.picture_preview_gallery_border_bg;
         }
 
         return uiStyle;

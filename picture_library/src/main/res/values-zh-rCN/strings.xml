@@ -48,7 +48,8 @@
     <string name="picture_confirm">确定</string>
     <string name="picture_preview_image_num">%1$d/%2$d</string>
     <string name="picture_not_crop_data">无可用裁剪数据</string>
-    <string name="picture_original_image">原图</string>
+    <string name="picture_original_image">原图 (%1$s)</string>
+    <string name="picture_default_original_image">原图</string>
     <string name="picture_send">完成</string>
     <string name="picture_send_num">完成(%1$d/%2$d)</string>
     <string name="picture_preview_num">预览(%1$d)</string>
@@ -64,6 +65,7 @@
     <string name="picture_go_setting">去设置</string>
     <string name="picture_know">我知道了</string>
     <string name="picture_data_null">这里空空如也…</string>
+    <string name="picture_editor">编辑</string>
 
     <string name="ucrop_rotate">旋转</string>
     <string name="ucrop_scale">比例</string>

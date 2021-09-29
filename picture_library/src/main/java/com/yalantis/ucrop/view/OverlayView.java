@@ -1,6 +1,7 @@
 package com.yalantis.ucrop.view;
 
 import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -12,9 +13,9 @@ import android.graphics.RectF;
 import android.graphics.Region;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.LinearInterpolator;
 import android.view.animation.OvershootInterpolator;
 
 import androidx.annotation.ColorInt;
@@ -36,7 +37,8 @@ import java.lang.annotation.RetentionPolicy;
  * This must have LAYER_TYPE_SOFTWARE to draw itself properly.
  */
 public class OverlayView extends View {
-
+    private static final long CROP_SIZE_CHANGE_DURATION = 260;
+    private static final long SMOOTH_CENTER_DURATION = 1000;
     public static final int FREESTYLE_CROP_MODE_DISABLE = 0;
     public static final int FREESTYLE_CROP_MODE_ENABLE = 1;
     public static final int FREESTYLE_CROP_MODE_ENABLE_WITH_PASS_THROUGH = 2;
@@ -62,22 +64,23 @@ public class OverlayView extends View {
     private boolean mCircleDimmedLayer;
     private int mDimmedColor;
     private int mDimmedBorderColor;
-    private Path mCircularPath = new Path();
-    private Paint mDimmedStrokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private Paint mCropGridPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private Paint mCropFramePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private Paint mCropFrameCornersPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Path mCircularPath = new Path();
+    private final Paint mDimmedStrokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint mCropGridPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint mCropFramePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint mCropFrameCornersPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     @FreestyleMode
     private int mFreestyleCropMode = DEFAULT_FREESTYLE_CROP_MODE;
     private float mPreviousTouchX = -1, mPreviousTouchY = -1;
     private int mCurrentTouchCornerIndex = -1;
-    private int mTouchPointThreshold;
-    private int mCropRectMinSize;
-    private int mCropRectCornerTouchAreaLineLength;
+    private final int mTouchPointThreshold;
+    private final int mCropRectMinSize;
+    private final int mCropRectCornerTouchAreaLineLength;
     private int mStrokeWidth = 1;
-    private boolean mIsDragFrame = DEFAULT_DRAG_FRAME;
+    private boolean isDragFrame = DEFAULT_DRAG_FRAME;
+    private boolean isDragCenter;
     private ValueAnimator smoothAnimator;
-
+    private ValueAnimator cropSizeChangeAnimator;
     private OverlayViewChangeListener mCallback;
 
     private boolean mShouldSetupCropBounds;
@@ -114,28 +117,29 @@ public class OverlayView extends View {
         return mCropViewRect;
     }
 
-    @Deprecated
     /***
      * Please use the new method {@link #getFreestyleCropMode() getFreestyleCropMode} method as we have more than 1 freestyle crop mode.
      */
+    @Deprecated
     public boolean isFreestyleCropEnabled() {
         return mFreestyleCropMode == FREESTYLE_CROP_MODE_ENABLE;
     }
 
-    @Deprecated
+
     /***
      * Please use the new method {@link #setFreestyleCropMode setFreestyleCropMode} method as we have more than 1 freestyle crop mode.
      */
+    @Deprecated
     public void setFreestyleCropEnabled(boolean freestyleCropEnabled) {
         mFreestyleCropMode = freestyleCropEnabled ? FREESTYLE_CROP_MODE_ENABLE : FREESTYLE_CROP_MODE_DISABLE;
     }
 
-    public boolean isDragFrame() {
-        return mIsDragFrame;
+    public void setDragFrame(boolean isDragFrame) {
+        this.isDragFrame = isDragFrame;
     }
 
-    public void setDragFrame(boolean mIsDragFrame) {
-        this.mIsDragFrame = mIsDragFrame;
+    public void setDragSmoothToCenter(boolean isDragCenter) {
+        this.isDragCenter = isDragCenter;
     }
 
     /**
@@ -337,6 +341,47 @@ public class OverlayView extends View {
         drawCropGrid(canvas);
     }
 
+    /**
+     * Crop frame size changed
+     *
+     * @param before
+     */
+    private void cropSizeChangedAnim(RectF before) {
+        float diffX = mCropViewRect.left - before.left;
+        float diffY = mCropViewRect.top - before.top;
+        if (cropSizeChangeAnimator != null) {
+            cropSizeChangeAnimator.cancel();
+        } else {
+            cropSizeChangeAnimator = new ValueAnimator();
+            cropSizeChangeAnimator.setInterpolator(new LinearInterpolator());
+            cropSizeChangeAnimator.setDuration(CROP_SIZE_CHANGE_DURATION);
+            cropSizeChangeAnimator.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    super.onAnimationEnd(animation);
+                    if (mCallback != null) {
+                        mCallback.onCropRectUpdated(mCropViewRect);
+                    }
+                }
+            });
+        }
+
+        cropSizeChangeAnimator.setFloatValues(0, 1);
+        cropSizeChangeAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                float value = (float) animation.getAnimatedValue();
+                float offsetX = value * diffX;
+                float offsetY = value * diffY;
+                mCropViewRect.set(new RectF(before.left + offsetX, before.top + offsetY, before.right - offsetX, before.bottom - offsetY));
+                updateGridPoints();
+                postInvalidate();
+            }
+        });
+        cropSizeChangeAnimator.start();
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (mCropViewRect.isEmpty() || mFreestyleCropMode == FREESTYLE_CROP_MODE_DISABLE) {
@@ -384,7 +429,9 @@ public class OverlayView extends View {
             if (mCallback != null) {
                 mCallback.onCropRectUpdated(mCropViewRect);
             }
-            smoothToCenter();
+            if (isDragCenter) {
+                smoothToCenter();
+            }
         }
 
         return false;
@@ -405,25 +452,25 @@ public class OverlayView extends View {
             // resize rectangle
             case 0:
                 // 是否可拖动裁剪框
-                if (isDragFrame()) {
+                if (isDragFrame) {
                     mTempRect.set(touchX, touchY, mCropViewRect.right, mCropViewRect.bottom);
                 }
                 break;
             case 1:
                 // 是否可拖动裁剪框
-                if (isDragFrame()) {
+                if (isDragFrame) {
                     mTempRect.set(mCropViewRect.left, touchY, touchX, mCropViewRect.bottom);
                 }
                 break;
             case 2:
                 // 是否可拖动裁剪框
-                if (isDragFrame()) {
+                if (isDragFrame) {
                     mTempRect.set(mCropViewRect.left, mCropViewRect.top, touchX, touchY);
                 }
                 break;
             case 3:
                 // 是否可拖动裁剪框
-                if (isDragFrame()) {
+                if (isDragFrame) {
                     mTempRect.set(touchX, mCropViewRect.top, mCropViewRect.right, touchY);
                 }
                 break;
@@ -640,16 +687,23 @@ public class OverlayView extends View {
         final int offsetY = (int) (centerPoint.y - mCropViewRect.centerY());
         final int offsetX = (int) (centerPoint.x - mCropViewRect.centerX());
         final RectF before = new RectF(mCropViewRect);
-        Log.d("pisa", "pre" + mCropViewRect);
         RectF after = new RectF(mCropViewRect);
         after.offset(offsetX, offsetY);
-        Log.d("pisa", "after" + after);
         if (smoothAnimator != null) {
             smoothAnimator.cancel();
         }
         smoothAnimator = ValueAnimator.ofFloat(0, 1);
-        smoothAnimator.setDuration(1000);
-        smoothAnimator.setInterpolator(new OvershootInterpolator());
+        smoothAnimator.setDuration(SMOOTH_CENTER_DURATION);
+        smoothAnimator.setInterpolator(new OvershootInterpolator(1.0F));
+        smoothAnimator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                if (mCallback != null) {
+                    mCallback.onCropRectUpdated(mCropViewRect);
+                }
+            }
+        });
+
         smoothAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             float lastAnimationValue = 0f;
 
@@ -672,29 +726,6 @@ public class OverlayView extends View {
                     );
                 }
                 lastAnimationValue = (float) animation.getAnimatedValue();
-            }
-        });
-        smoothAnimator.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                if (mCallback != null) {
-                    mCallback.onCropRectUpdated(mCropViewRect);
-                }
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animation) {
-
             }
         });
         smoothAnimator.start();

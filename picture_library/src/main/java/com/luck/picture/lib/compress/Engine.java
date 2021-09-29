@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.text.TextUtils;
 
+import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.tools.BitmapUtils;
 
 import java.io.ByteArrayOutputStream;
@@ -20,6 +21,7 @@ class Engine {
     private final File tagImg;
     private int srcWidth;
     private int srcHeight;
+    @Deprecated
     private final boolean focusAlpha;
     private static final int DEFAULT_QUALITY = 80;
     private int compressQuality;
@@ -72,7 +74,6 @@ class Engine {
         }
     }
 
-
     File compress() throws IOException {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inSampleSize = computeSize();
@@ -81,7 +82,8 @@ class Engine {
         if (isAutoRotating) {
             if (Checker.SINGLE.isJPG(srcImg.getMedia().getMimeType())) {
                 boolean isCut = srcImg.getMedia().isCut() && !TextUtils.isEmpty(srcImg.getMedia().getCutPath());
-                int degree = BitmapUtils.readPictureDegree(context, isCut ? srcImg.getMedia().getCutPath() : srcImg.getMedia().getPath());
+                String url = isCut ? srcImg.getMedia().getCutPath() : srcImg.getMedia().getPath();
+                int degree = PictureMimeType.isContent(url) ? BitmapUtils.readPictureDegree(srcImg.open()) : BitmapUtils.readPictureDegree(context, url);
                 if (degree > 0) {
                     tagBitmap = BitmapUtils.rotatingImage(tagBitmap, degree);
                 }
@@ -89,14 +91,15 @@ class Engine {
         }
         if (tagBitmap != null) {
             compressQuality = compressQuality <= 0 || compressQuality > 100 ? DEFAULT_QUALITY : compressQuality;
-            tagBitmap.compress(focusAlpha ? Bitmap.CompressFormat.PNG : Bitmap.CompressFormat.JPEG, compressQuality, stream);
+            tagBitmap.compress(focusAlpha || tagBitmap.hasAlpha() ? Bitmap.CompressFormat.PNG : Bitmap.CompressFormat.JPEG, compressQuality, stream);
             tagBitmap.recycle();
+            FileOutputStream fos = new FileOutputStream(tagImg);
+            fos.write(stream.toByteArray());
+            fos.flush();
+            fos.close();
+            stream.close();
+            return tagImg;
         }
-        FileOutputStream fos = new FileOutputStream(tagImg);
-        fos.write(stream.toByteArray());
-        fos.flush();
-        fos.close();
-        stream.close();
-        return tagImg;
+        return null;
     }
 }

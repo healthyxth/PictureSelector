@@ -33,13 +33,10 @@ import com.luck.picture.lib.tools.ValueOf;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-
-import okio.BufferedSource;
-import okio.Okio;
 
 /**
  * @author：luck
@@ -66,10 +63,7 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
         if (!config.isUseCustomCamera) {
             setActivitySize();
             if (savedInstanceState == null) {
-                if (PermissionChecker
-                        .checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) &&
-                        PermissionChecker
-                                .checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                if (PermissionChecker.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
 
                     if (PictureSelectionConfig.onCustomCameraInterfaceListener != null) {
                         if (config.chooseMode == PictureConfig.TYPE_VIDEO) {
@@ -82,7 +76,6 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
                     }
                 } else {
                     PermissionChecker.requestPermissions(this, new String[]{
-                            Manifest.permission.READ_EXTERNAL_STORAGE,
                             Manifest.permission.WRITE_EXTERNAL_STORAGE}, PictureConfig.APPLY_STORAGE_PERMISSIONS_CODE);
                 }
             }
@@ -114,19 +107,8 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
      * open camera
      */
     private void onTakePhoto() {
-        if (PermissionChecker
-                .checkSelfPermission(this, Manifest.permission.CAMERA)) {
-            boolean isPermissionChecker = true;
-            if (config != null && config.isUseCustomCamera) {
-                isPermissionChecker = PermissionChecker.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO);
-            }
-            if (isPermissionChecker) {
-                startCamera();
-            } else {
-                PermissionChecker
-                        .requestPermissions(this,
-                                new String[]{Manifest.permission.RECORD_AUDIO}, PictureConfig.APPLY_RECORD_AUDIO_PERMISSIONS_CODE);
-            }
+        if (PermissionChecker.checkSelfPermission(this, Manifest.permission.CAMERA)) {
+            startCamera();
         } else {
             PermissionChecker.requestPermissions(this,
                     new String[]{Manifest.permission.CAMERA}, PictureConfig.APPLY_CAMERA_PERMISSIONS_CODE);
@@ -140,7 +122,7 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
         switch (config.chooseMode) {
             case PictureConfig.TYPE_ALL:
             case PictureConfig.TYPE_IMAGE:
-                startOpenCamera();
+                startOpenCameraImage();
                 break;
             case PictureConfig.TYPE_VIDEO:
                 startOpenCameraVideo();
@@ -203,31 +185,25 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
         }
         String cutPath = resultUri.getPath();
         boolean isCutEmpty = TextUtils.isEmpty(cutPath);
-        LocalMedia media = new LocalMedia(config.cameraPath, 0, false,
-                config.isCamera ? 1 : 0, 0, config.chooseMode);
+        LocalMedia media = LocalMedia.parseLocalMedia(config.cameraPath, config.isCamera ? 1 : 0, config.chooseMode);
         if (SdkVersionUtils.checkedAndroid_Q()) {
             int lastIndexOf = config.cameraPath.lastIndexOf("/") + 1;
             media.setId(lastIndexOf > 0 ? ValueOf.toLong(config.cameraPath.substring(lastIndexOf)) : -1);
             media.setAndroidQToPath(cutPath);
-            if (isCutEmpty) {
-                if (PictureMimeType.isContent(config.cameraPath)) {
-                    String path = PictureFileUtils.getPath(this, Uri.parse(config.cameraPath));
-                    media.setSize(!TextUtils.isEmpty(path) ? new File(path).length() : 0);
-                } else {
-                    media.setSize(new File(config.cameraPath).length());
-                }
-            } else {
-                media.setSize(new File(cutPath).length());
-            }
         } else {
             // Taking a photo generates a temporary id
             media.setId(System.currentTimeMillis());
-            media.setSize(new File(isCutEmpty ? media.getPath() : cutPath).length());
         }
         media.setCut(!isCutEmpty);
         media.setCutPath(cutPath);
         String mimeType = PictureMimeType.getImageMimeType(cutPath);
         media.setMimeType(mimeType);
+        media.setCropImageWidth(data.getIntExtra(UCrop.EXTRA_OUTPUT_IMAGE_WIDTH,0));
+        media.setCropImageHeight(data.getIntExtra(UCrop.EXTRA_OUTPUT_IMAGE_HEIGHT,0));
+        media.setCropOffsetX(data.getIntExtra(UCrop.EXTRA_OUTPUT_OFFSET_X,0));
+        media.setCropOffsetY(data.getIntExtra(UCrop.EXTRA_OUTPUT_OFFSET_Y,0));
+        media.setCropResultAspectRatio(data.getFloatExtra(UCrop.EXTRA_OUTPUT_CROP_ASPECT_RATIO,0F));
+        media.setEditorImage(data.getBooleanExtra(UCrop.EXTRA_EDITOR_IMAGE,false));
         if (PictureMimeType.isContent(media.getPath())) {
             String path = PictureFileUtils.getPath(getContext(), Uri.parse(media.getPath()));
             media.setRealPath(path);
@@ -252,6 +228,11 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
                 media.setHeight(mediaExtraInfo.getHeight());
             }
         }
+
+        File file = new File(media.getRealPath());
+        media.setSize(file.length());
+        media.setFileName(file.getName());
+
         medias.add(media);
         handlerResult(medias);
     }
@@ -270,21 +251,16 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
                     return;
                 }
                 if (SdkVersionUtils.checkedAndroid_R()) {
-                    BufferedSource buffer = null;
                     try {
-                        Uri audioOutUri = MediaUtils.createAudioUri(getContext(), config.suffixType);
+                        Uri audioOutUri = MediaUtils.createAudioUri(getContext(), TextUtils.isEmpty(config.cameraAudioFormat) ? config.suffixType : config.cameraAudioFormat);
                         if (audioOutUri != null) {
-                            buffer = Okio.buffer(Okio.source(Objects.requireNonNull(getContentResolver().openInputStream(Uri.parse(config.cameraPath)))));
-                            OutputStream outputStream = getContentResolver().openOutputStream(audioOutUri);
-                            PictureFileUtils.bufferCopy(buffer, outputStream);
+                            InputStream inputStream = PictureContentResolver.getContentResolverOpenInputStream(this, Uri.parse(config.cameraPath));
+                            OutputStream outputStream = PictureContentResolver.getContentResolverOpenOutputStream(this, audioOutUri);
+                            PictureFileUtils.writeFileFromIS(inputStream,outputStream);
                             config.cameraPath = audioOutUri.toString();
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
-                    } finally {
-                        if (buffer != null && buffer.isOpen()) {
-                            PictureFileUtils.close(buffer);
-                        }
                     }
                 }
             }
@@ -298,8 +274,9 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
                 // content: Processing rules
                 String path = PictureFileUtils.getPath(getContext(), Uri.parse(config.cameraPath));
                 File cameraFile = new File(path);
-                mimeType = PictureMimeType.getMimeType(config.cameraMimeType);
+                mimeType = PictureMimeType.getImageMimeType(path,config.cameraMimeType);
                 media.setSize(cameraFile.length());
+                media.setFileName(cameraFile.getName());
                 if (PictureMimeType.isHasImage(mimeType)) {
                     MediaExtraInfo mediaExtraInfo = MediaUtils.getImageSize(getContext(), config.cameraPath);
                     media.setWidth(mediaExtraInfo.getWidth());
@@ -321,8 +298,9 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
                 media.setAndroidQToPath(mediaPath);
             } else {
                 File cameraFile = new File(config.cameraPath);
-                mimeType = PictureMimeType.getMimeType(config.cameraMimeType);
+                mimeType = PictureMimeType.getImageMimeType(config.cameraPath,config.cameraMimeType);
                 media.setSize(cameraFile.length());
+                media.setFileName(cameraFile.getName());
                 if (PictureMimeType.isHasImage(mimeType)) {
                     BitmapUtils.rotateImage(getContext(), config.isCameraRotateImage, config.cameraPath);
                     MediaExtraInfo mediaExtraInfo = MediaUtils.getImageSize(getContext(), config.cameraPath);
@@ -389,7 +367,7 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
      */
     private void dispatchCameraHandleResult(LocalMedia media) {
         boolean isHasImage = PictureMimeType.isHasImage(media.getMimeType());
-        if (config.enableCrop && isHasImage) {
+        if (config.enableCrop && !config.isCheckOriginalImage && isHasImage) {
             config.originalPath = config.cameraPath;
             UCropManager.ofCrop(this, config.cameraPath, media.getMimeType());
         } else if (config.isCompress && isHasImage) {
@@ -425,15 +403,6 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
                 } else {
                     exit();
                     ToastUtils.s(getContext(), getString(R.string.picture_camera));
-                }
-                break;
-            case PictureConfig.APPLY_RECORD_AUDIO_PERMISSIONS_CODE:
-                // Recording Permissions
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    onTakePhoto();
-                } else {
-                    exit();
-                    ToastUtils.s(getContext(), getString(R.string.picture_audio));
                 }
                 break;
         }
