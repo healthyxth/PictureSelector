@@ -395,7 +395,7 @@ public class PictureSelectorUIStyle {
         uiStyle.picture_statusBarBackgroundColor = Color.parseColor("#FFFFFF");
         uiStyle.picture_container_backgroundColor = Color.parseColor("#FFFFFF");
 
-        uiStyle.picture_navBarColor = Color.parseColor("#393a3e");
+        uiStyle.picture_navBarColor = Color.parseColor("#000000");
 
         uiStyle.picture_check_style = R.drawable.wegene_checkbox_selector;
 

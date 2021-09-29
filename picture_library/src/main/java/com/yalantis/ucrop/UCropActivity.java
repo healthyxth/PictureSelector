@@ -232,8 +232,8 @@ public class UCropActivity extends AppCompatActivity {
         Drawable menuItemCropIcon = ContextCompat.getDrawable(this, mToolbarCropDrawable);
         if (menuItemCropIcon != null) {
             menuItemCropIcon.mutate();
-            ColorFilter colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(mToolbarWidgetColor, BlendModeCompat.SRC_ATOP);
-            menuItemCropIcon.setColorFilter(colorFilter);
+//            ColorFilter colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(mToolbarWidgetColor, BlendModeCompat.SRC_ATOP);
+//            menuItemCropIcon.setColorFilter(colorFilter);
             menuItemCrop.setIcon(menuItemCropIcon);
         }
 
@@ -479,8 +479,8 @@ public class UCropActivity extends AppCompatActivity {
 
         // Color buttons inside the Toolbar
         Drawable stateButtonDrawable = AppCompatResources.getDrawable(this, mToolbarCancelDrawable).mutate();
-        ColorFilter colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(mToolbarWidgetColor, BlendModeCompat.SRC_ATOP);
-        stateButtonDrawable.setColorFilter(colorFilter);
+//        ColorFilter colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(mToolbarWidgetColor, BlendModeCompat.SRC_ATOP);
+//        stateButtonDrawable.setColorFilter(colorFilter);
         toolbar.setNavigationIcon(stateButtonDrawable);
         setSupportActionBar(toolbar);
         final ActionBar actionBar = getSupportActionBar();

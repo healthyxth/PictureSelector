@@ -21,7 +21,8 @@
             android:layout_gravity="center"
             android:text="@string/ucrop_label_edit_photo"
             android:textColor="@color/ucrop_color_toolbar_widget"
-            android:textSize="18sp" />
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
     </androidx.appcompat.widget.Toolbar>
 
