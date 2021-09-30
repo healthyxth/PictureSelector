@@ -8,6 +8,7 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import com.luck.picture.lib.R;
+import com.luck.picture.lib.tools.ScreenUtils;
 
 public class PictureCustomDialog extends Dialog {
 
@@ -17,7 +18,7 @@ public class PictureCustomDialog extends Dialog {
         Window window = getWindow();
         if (window != null) {
             WindowManager.LayoutParams params = window.getAttributes();
-            params.width = ViewGroup.LayoutParams.WRAP_CONTENT;
+            params.width = (int) (ScreenUtils.getScreenWidth(context) * 0.7);
             params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
             params.gravity = Gravity.CENTER;
             window.setAttributes(params);

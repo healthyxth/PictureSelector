@@ -11,19 +11,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:paddingLeft="15dp"
-        android:paddingTop="35dp"
-        android:paddingRight="15dp"
-        android:paddingBottom="35dp"
-        android:textColor="@color/picture_color_4d"
-        android:textSize="15sp"
-        android:textStyle="bold" />
+        android:paddingHorizontal="24dp"
+        android:paddingVertical="20dp"
+        android:textColor="@color/wegene_text_black"
+        android:textSize="16sp" />
 
     <View
         android:id="@+id/bottom_line"
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
-        android:background="@color/picture_color_e" />
+        android:background="@color/wegene_color_line" />
 
     <TextView
         android:id="@+id/btnOk"
@@ -32,6 +29,6 @@
         android:background="@drawable/picture_btn_bottom_selector"
         android:gravity="center"
         android:text="@string/picture_know"
-        android:textColor="@color/picture_color_9b"
+        android:textColor="@color/wegene_blue"
         android:textStyle="bold" />
 </LinearLayout>
