@@ -15,6 +15,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.luck.picture.lib.camera.CustomCameraType;
 import com.luck.picture.lib.camera.CustomCameraView;
 import com.luck.picture.lib.camera.listener.CameraListener;
 import com.luck.picture.lib.camera.listener.ClickListener;
@@ -25,8 +26,6 @@ import com.luck.picture.lib.config.PictureSelectionConfig;
 import com.luck.picture.lib.dialog.PictureCustomDialog;
 import com.luck.picture.lib.listener.OnPermissionDialogOptionCallback;
 import com.luck.picture.lib.permissions.PermissionChecker;
-
-import java.io.File;
 
 /**
  * @author：luck
@@ -66,7 +65,7 @@ public class PictureCustomCameraActivity extends PictureSelectorCameraEmptyActiv
         if (PermissionChecker.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             // 验证相机权限和麦克风权限
             if (PermissionChecker.checkSelfPermission(this, Manifest.permission.CAMERA)) {
-                if (config.buttonFeatures == CustomCameraView.BUTTON_STATE_ONLY_CAPTURE) {
+                if (config.buttonFeatures == CustomCameraType.BUTTON_STATE_ONLY_CAPTURE) {
                     mCameraView.initCamera();
                 } else {
                     if (PermissionChecker.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)) {
@@ -94,7 +93,7 @@ public class PictureCustomCameraActivity extends PictureSelectorCameraEmptyActiv
         if (isEnterSetting) {
             if (PermissionChecker.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 if (PermissionChecker.checkSelfPermission(this, Manifest.permission.CAMERA)) {
-                    if (config.buttonFeatures == CustomCameraView.BUTTON_STATE_ONLY_CAPTURE) {
+                    if (config.buttonFeatures == CustomCameraType.BUTTON_STATE_ONLY_CAPTURE) {
                         mCameraView.initCamera();
                     } else {
                         if (PermissionChecker.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)) {
@@ -127,27 +126,25 @@ public class PictureCustomCameraActivity extends PictureSelectorCameraEmptyActiv
             mCameraView.setRecordVideoMinTime(config.recordVideoMinSecond);
         }
         // 设置拍照时loading色值
-        if (config.captureLoadingColor != 0) {
-            mCameraView.setCaptureLoadingColor(config.captureLoadingColor);
-        }
+        mCameraView.setCaptureLoadingColor(config.captureLoadingColor);
         // 获取录制按钮
         CaptureLayout captureLayout = mCameraView.getCaptureLayout();
         if (captureLayout != null) {
             captureLayout.setButtonFeatures(config.buttonFeatures);
         }
         // 拍照预览
-        mCameraView.setImageCallbackListener((file, imageView) -> {
-            if (config != null && PictureSelectionConfig.imageEngine != null && file != null) {
-                PictureSelectionConfig.imageEngine.loadImage(getContext(), file.getAbsolutePath(), imageView);
+        mCameraView.setImageCallbackListener((url, imageView) -> {
+            if (config != null && PictureSelectionConfig.imageEngine != null) {
+                PictureSelectionConfig.imageEngine.loadImage(getContext(), url, imageView);
             }
         });
         // 设置拍照或拍视频回调监听
         mCameraView.setCameraListener(new CameraListener() {
             @Override
-            public void onPictureSuccess(@NonNull File file) {
+            public void onPictureSuccess(@NonNull String url) {
                 config.cameraMimeType = PictureMimeType.ofImage();
                 Intent intent = new Intent();
-                intent.putExtra(PictureConfig.EXTRA_MEDIA_PATH, file.getAbsolutePath());
+                intent.putExtra(PictureConfig.EXTRA_MEDIA_PATH, url);
                 intent.putExtra(PictureConfig.EXTRA_CONFIG, config);
                 if (config.camera) {
                     dispatchHandleCamera(intent);
@@ -158,10 +155,10 @@ public class PictureCustomCameraActivity extends PictureSelectorCameraEmptyActiv
             }
 
             @Override
-            public void onRecordSuccess(@NonNull File file) {
+            public void onRecordSuccess(@NonNull String url) {
                 config.cameraMimeType = PictureMimeType.ofVideo();
                 Intent intent = new Intent();
-                intent.putExtra(PictureConfig.EXTRA_MEDIA_PATH, file.getAbsolutePath());
+                intent.putExtra(PictureConfig.EXTRA_MEDIA_PATH, url);
                 intent.putExtra(PictureConfig.EXTRA_CONFIG, config);
                 if (config.camera) {
                     dispatchHandleCamera(intent);
